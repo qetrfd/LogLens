@@ -1,3 +1,4 @@
+using LogLens.Core;
 using Xunit;
 
 namespace LogLens.Core.Tests;
@@ -10,7 +11,7 @@ public sealed class LogLensProductTests
         ApplicationIdentity product = LogLensProduct.Current;
 
         Assert.Equal("LogLens", product.Name);
-        Assert.Equal("0.1.0", product.Version);
+        Assert.Equal("0.2.0", product.Version);
         Assert.False(string.IsNullOrWhiteSpace(product.Description));
     }
 }
