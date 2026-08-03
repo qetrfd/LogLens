@@ -28,7 +28,7 @@ public sealed class MainWindowViewModel
         _summary.Product.Description;
 
     public string CurrentPhase =>
-        "Fase 4 · Parsers estructurados";
+        "Fase 5 · Agrupación de incidentes";
 
     public string RuntimeDescription =>
         $"{_summary.Runtime.OperatingSystem} · " +

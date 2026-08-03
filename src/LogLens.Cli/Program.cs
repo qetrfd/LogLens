@@ -12,13 +12,15 @@ internal static class Program
     {
         Console.OutputEncoding = Encoding.UTF8;
 
-        using CancellationTokenSource cancellationSource = new();
+        using CancellationTokenSource cancellationSource =
+            new();
 
-        ConsoleCancelEventHandler cancelHandler = (_, eventArgs) =>
-        {
-            eventArgs.Cancel = true;
-            cancellationSource.Cancel();
-        };
+        ConsoleCancelEventHandler cancelHandler =
+            (_, eventArgs) =>
+            {
+                eventArgs.Cancel = true;
+                cancellationSource.Cancel();
+            };
 
         Console.CancelKeyPress += cancelHandler;
 
@@ -31,6 +33,7 @@ internal static class Program
         catch (OperationCanceledException)
         {
             Console.WriteLine();
+
             Console.Error.WriteLine(
                 "La operación fue cancelada.");
 
@@ -39,6 +42,7 @@ internal static class Program
         catch (Exception exception)
         {
             Console.WriteLine();
+
             Console.Error.WriteLine(
                 $"Error: {exception.Message}");
 
@@ -76,6 +80,10 @@ internal static class Program
                 args,
                 cancellationToken),
 
+            "group" => await RunGroupAsync(
+                args,
+                cancellationToken),
+
             "version" => PrintVersion(),
             "--version" => PrintVersion(),
             "-v" => PrintVersion(),
@@ -96,7 +104,9 @@ internal static class Program
             args,
             "loglens read <archivo> [--preview cantidad]");
 
-        int previewLimit = ParsePreviewLimit(args);
+        int previewLimit =
+            ParsePreviewLimit(args);
+
         Guid sourceId = Guid.NewGuid();
 
         LogReadRequest request = new(
@@ -110,6 +120,7 @@ internal static class Program
         ConsoleLogProgress progress = new();
 
         Console.WriteLine();
+
         Console.WriteLine(
             "LOGLENS · LECTOR PROGRESIVO");
 
@@ -128,34 +139,45 @@ internal static class Program
                 progress,
                 cancellationToken);
 
-        FileInfo fileInfo = new(result.FilePath);
+        FileInfo fileInfo =
+            new(result.FilePath);
 
         Console.WriteLine();
         Console.WriteLine("RESUMEN");
-        Console.WriteLine(new string('─', 68));
 
         Console.WriteLine(
-            $"Tamaño:              {FormatBytes(fileInfo.Length)}");
+            new string('─', 68));
 
         Console.WriteLine(
-            $"Líneas:              {result.TotalLines:N0}");
+            $"Tamaño:              " +
+            $"{FormatBytes(fileInfo.Length)}");
 
         Console.WriteLine(
-            $"Líneas vacías:       {result.EmptyLines:N0}");
+            $"Líneas:              " +
+            $"{result.TotalLines:N0}");
 
         Console.WriteLine(
-            $"Línea más larga:     {result.LongestLineLength:N0} caracteres");
+            $"Líneas vacías:       " +
+            $"{result.EmptyLines:N0}");
 
         Console.WriteLine(
-            $"Vista previa:        {result.Preview.Count:N0} líneas");
+            $"Línea más larga:     " +
+            $"{result.LongestLineLength:N0} caracteres");
+
+        Console.WriteLine(
+            $"Vista previa:        " +
+            $"{result.Preview.Count:N0} líneas");
 
         if (result.Preview.Count > 0)
         {
             Console.WriteLine();
             Console.WriteLine("VISTA PREVIA");
-            Console.WriteLine(new string('─', 68));
 
-            foreach (RawLogLine line in result.Preview)
+            Console.WriteLine(
+                new string('─', 68));
+
+            foreach (
+                RawLogLine line in result.Preview)
             {
                 Console.WriteLine(
                     $"{line.LineNumber,6} │ {line.Text}");
@@ -175,7 +197,9 @@ internal static class Program
             args,
             "loglens parse <archivo> [--preview cantidad]");
 
-        int previewLimit = ParsePreviewLimit(args);
+        int previewLimit =
+            ParsePreviewLimit(args);
+
         Guid sourceId = Guid.NewGuid();
 
         LogReadRequest request = new(
@@ -184,13 +208,7 @@ internal static class Program
             progressIntervalLines: 250);
 
         string sourceName =
-            Path.GetFileNameWithoutExtension(
-                request.FilePath);
-
-        if (string.IsNullOrWhiteSpace(sourceName))
-        {
-            sourceName = "Archivo";
-        }
+            GetSourceName(request.FilePath);
 
         LogFileParsingService service = new(
             new StreamingLogFileReader(),
@@ -199,6 +217,7 @@ internal static class Program
         ConsoleLogProgress progress = new();
 
         Console.WriteLine();
+
         Console.WriteLine(
             "LOGLENS · ANÁLISIS DE ESTRUCTURA");
 
@@ -220,23 +239,96 @@ internal static class Program
 
         Console.WriteLine();
         Console.WriteLine("RESUMEN");
-        Console.WriteLine(new string('─', 68));
 
         Console.WriteLine(
-            $"Líneas totales:      {result.TotalLines:N0}");
+            new string('─', 68));
 
         Console.WriteLine(
-            $"Procesadas:          {result.ParsedLines:N0}");
+            $"Líneas totales:      " +
+            $"{result.TotalLines:N0}");
 
         Console.WriteLine(
-            $"No reconocidas:      {result.UnparsedLines:N0}");
+            $"Procesadas:          " +
+            $"{result.ParsedLines:N0}");
 
         Console.WriteLine(
-            $"Cobertura:           {result.ParsedPercentage:0.##}%");
+            $"No reconocidas:      " +
+            $"{result.UnparsedLines:N0}");
+
+        Console.WriteLine(
+            $"Cobertura:           " +
+            $"{result.ParsedPercentage:0.##}%");
 
         PrintLevelCounts(result);
         PrintParserCounts(result);
         PrintParsedPreview(result);
+
+        Console.WriteLine();
+
+        return result.UnparsedLines > 0
+            ? 2
+            : 0;
+    }
+
+    private static async Task<int> RunGroupAsync(
+        string[] args,
+        CancellationToken cancellationToken)
+    {
+        GroupCommandOptions commandOptions =
+            GroupCommandOptions.Parse(args);
+
+        Guid sourceId = Guid.NewGuid();
+
+        LogReadRequest request = new(
+            sourceId,
+            commandOptions.FilePath,
+            progressIntervalLines: 250);
+
+        string sourceName =
+            GetSourceName(request.FilePath);
+
+        LogGroupingOptions groupingOptions = new(
+            commandOptions.SampleLimit,
+            commandOptions.IncludeUnknownLevels);
+
+        LogFileGroupingService service =
+            DefaultLogAnalysisFactory
+                .CreateFileGroupingService();
+
+        ConsoleLogProgress progress = new();
+
+        Console.WriteLine();
+
+        Console.WriteLine(
+            "LOGLENS · AGRUPACIÓN DE INCIDENTES");
+
+        Console.WriteLine(
+            new string('─', 78));
+
+        Console.WriteLine(
+            $"Archivo: {request.FilePath}");
+
+        Console.WriteLine(
+            $"Muestras por grupo: " +
+            $"{groupingOptions.SampleLimit}");
+
+        Console.WriteLine(
+            $"Incluir desconocidos: " +
+            $"{groupingOptions.IncludeUnknownLevels}");
+
+        Console.WriteLine();
+
+        LogFileGroupingResult result =
+            await service.GroupAsync(
+                request,
+                sourceName,
+                groupingOptions,
+                progress,
+                cancellationToken);
+
+        ConsoleLogGroupRenderer.Render(
+            result,
+            commandOptions.Top);
 
         Console.WriteLine();
 
@@ -250,7 +342,9 @@ internal static class Program
     {
         Console.WriteLine();
         Console.WriteLine("NIVELES");
-        Console.WriteLine(new string('─', 68));
+
+        Console.WriteLine(
+            new string('─', 68));
 
         if (result.LevelCounts.Count == 0)
         {
@@ -263,10 +357,12 @@ internal static class Program
         foreach (
             KeyValuePair<LogLevel, long> item
             in result.LevelCounts
-                .OrderByDescending(item => item.Key))
+                .OrderByDescending(
+                    item => item.Key))
         {
             Console.WriteLine(
-                $"{item.Key,-18} {item.Value,10:N0}");
+                $"{item.Key,-18} " +
+                $"{item.Value,10:N0}");
         }
     }
 
@@ -275,7 +371,9 @@ internal static class Program
     {
         Console.WriteLine();
         Console.WriteLine("PARSERS");
-        Console.WriteLine(new string('─', 68));
+
+        Console.WriteLine(
+            new string('─', 68));
 
         if (result.ParserCounts.Count == 0)
         {
@@ -288,13 +386,15 @@ internal static class Program
         foreach (
             KeyValuePair<string, long> item
             in result.ParserCounts
-                .OrderByDescending(item => item.Value)
+                .OrderByDescending(
+                    item => item.Value)
                 .ThenBy(
                     item => item.Key,
                     StringComparer.Ordinal))
         {
             Console.WriteLine(
-                $"{item.Key,-30} {item.Value,10:N0}");
+                $"{item.Key,-30} " +
+                $"{item.Value,10:N0}");
         }
     }
 
@@ -307,19 +407,26 @@ internal static class Program
         }
 
         Console.WriteLine();
-        Console.WriteLine("VISTA PREVIA PROCESADA");
-        Console.WriteLine(new string('─', 68));
 
-        foreach (ParsedLogLine line in result.Preview)
+        Console.WriteLine(
+            "VISTA PREVIA PROCESADA");
+
+        Console.WriteLine(
+            new string('─', 68));
+
+        foreach (
+            ParsedLogLine line in result.Preview)
         {
-            string timestamp = line.Timestamp?.ToString(
-                "yyyy-MM-dd HH:mm:ss zzz",
-                CultureInfo.InvariantCulture)
+            string timestamp =
+                line.Timestamp?.ToString(
+                    "yyyy-MM-dd HH:mm:ss zzz",
+                    CultureInfo.InvariantCulture)
                 ?? "sin fecha";
 
-            string service = line.Service is null
-                ? string.Empty
-                : $" [{line.Service}]";
+            string service =
+                line.Service is null
+                    ? string.Empty
+                    : $" [{line.Service}]";
 
             Console.WriteLine(
                 $"{line.LineNumber,6} │ " +
@@ -342,12 +449,27 @@ internal static class Program
         return args[1];
     }
 
+    private static string GetSourceName(
+        string filePath)
+    {
+        string sourceName =
+            Path.GetFileNameWithoutExtension(
+                filePath);
+
+        return string.IsNullOrWhiteSpace(sourceName)
+            ? "Archivo"
+            : sourceName;
+    }
+
     private static int ParsePreviewLimit(
         string[] args)
     {
         int previewLimit = 10;
 
-        for (int index = 2; index < args.Length; index++)
+        for (
+            int index = 2;
+            index < args.Length;
+            index++)
         {
             if (
                 !string.Equals(
@@ -362,7 +484,8 @@ internal static class Program
             if (index + 1 >= args.Length)
             {
                 throw new ArgumentException(
-                    "Debes indicar una cantidad después de --preview.");
+                    "Debes indicar una cantidad " +
+                    "después de --preview.");
             }
 
             if (
@@ -372,7 +495,8 @@ internal static class Program
                 previewLimit < 0)
             {
                 throw new ArgumentException(
-                    "La cantidad de vista previa debe ser un número no negativo.");
+                    "La cantidad de vista previa " +
+                    "debe ser un número no negativo.");
             }
 
             index++;
@@ -399,24 +523,33 @@ internal static class Program
 
         Console.WriteLine();
         Console.WriteLine("LOGLENS");
-        Console.WriteLine(new string('─', 68));
 
         Console.WriteLine(
-            $"Versión:       {summary.Product.Version}");
+            new string('─', 68));
 
         Console.WriteLine(
-            $"Descripción:   {summary.Product.Description}");
+            $"Versión:       " +
+            $"{summary.Product.Version}");
 
         Console.WriteLine(
-            $"Sistema:       {summary.Runtime.OperatingSystem}");
+            $"Descripción:   " +
+            $"{summary.Product.Description}");
 
         Console.WriteLine(
-            $"Arquitectura:  {summary.Runtime.Architecture}");
+            $"Sistema:       " +
+            $"{summary.Runtime.OperatingSystem}");
 
         Console.WriteLine(
-            $"Runtime:       {summary.Runtime.Framework}");
+            $"Arquitectura:  " +
+            $"{summary.Runtime.Architecture}");
 
-        Console.WriteLine(new string('─', 68));
+        Console.WriteLine(
+            $"Runtime:       " +
+            $"{summary.Runtime.Framework}");
+
+        Console.WriteLine(
+            new string('─', 68));
+
         Console.WriteLine();
     }
 
@@ -438,6 +571,18 @@ internal static class Program
             "  loglens parse <archivo> --preview 20");
 
         Console.WriteLine(
+            "  loglens group <archivo>");
+
+        Console.WriteLine(
+            "  loglens group <archivo> --samples 5");
+
+        Console.WriteLine(
+            "  loglens group <archivo> --top 10");
+
+        Console.WriteLine(
+            "  loglens group <archivo> --exclude-unknown");
+
+        Console.WriteLine(
             "  loglens version");
 
         Console.WriteLine(
@@ -448,7 +593,9 @@ internal static class Program
         Console.WriteLine();
 
         Console.WriteLine(
-            $"  {string.Join(", ", SupportedLogFileExtensions.All)}");
+            $"  {string.Join(
+                ", ",
+                SupportedLogFileExtensions.All)}");
 
         Console.WriteLine();
     }

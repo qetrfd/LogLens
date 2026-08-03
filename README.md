@@ -2,27 +2,32 @@
 
 Local log analysis and incident diagnostics for developers.
 
-LogLens es una aplicación multiplataforma para procesar archivos de logs, detectar información estructurada, agrupar errores repetidos y diagnosticar incidentes mediante reglas locales.
+LogLens es una aplicación multiplataforma para leer, procesar, estructurar y agrupar archivos de logs sin cargar todo el archivo en memoria.
 
 ## Estado
 
-Versión actual: 0.4.0
+Versión actual: 0.5.0
 
 La solución incluye:
 
 - Modelo de dominio
-- Lectura progresiva de archivos
-- Procesamiento mediante streaming
+- Lectura progresiva mediante streaming
 - Progreso y cancelación
-- Detección de timestamps
-- Detección de niveles
 - Parser de texto genérico
 - Parser de JSON Lines
+- Detección de timestamps
+- Detección de niveles
 - Extracción de servicios
 - Extracción de códigos HTTP
 - Extracción de duración
 - Extracción de excepciones
 - Extracción de correlation IDs
+- Generación de huellas digitales
+- Normalización de valores dinámicos
+- Agrupación de incidentes repetidos
+- Conteo de apariciones
+- Primera y última aparición
+- Muestras representativas
 - CLI
 - Aplicación de escritorio con Avalonia
 - Pruebas automatizadas
@@ -62,28 +67,55 @@ dotnet run \
   -- read application.log
 ```
 
-## Configurar la vista previa
-
-```bash
-dotnet run \
-  --project src/LogLens.Cli/LogLens.Cli.csproj \
-  -- read application.log --preview 20
-```
-
 ## Procesar un archivo
 
 ```bash
 dotnet run \
   --project src/LogLens.Cli/LogLens.Cli.csproj \
-  -- parse application.log
+  -- parse application.log --preview 20
 ```
 
-## Procesar JSON Lines
+## Agrupar incidentes
 
 ```bash
 dotnet run \
   --project src/LogLens.Cli/LogLens.Cli.csproj \
-  -- parse events.jsonl --preview 20
+  -- group application.log
+```
+
+## Configurar muestras por grupo
+
+```bash
+dotnet run \
+  --project src/LogLens.Cli/LogLens.Cli.csproj \
+  -- group application.log --samples 5
+```
+
+## Limitar grupos mostrados
+
+```bash
+dotnet run \
+  --project src/LogLens.Cli/LogLens.Cli.csproj \
+  -- group application.log --top 10
+```
+
+## Excluir entradas sin nivel
+
+```bash
+dotnet run \
+  --project src/LogLens.Cli/LogLens.Cli.csproj \
+  -- group application.log --exclude-unknown
+```
+
+## Combinar opciones
+
+```bash
+dotnet run \
+  --project src/LogLens.Cli/LogLens.Cli.csproj \
+  -- group application.log \
+  --samples 3 \
+  --top 10 \
+  --exclude-unknown
 ```
 
 ## Ejecutar la aplicación de escritorio
@@ -93,18 +125,20 @@ dotnet run \
   --project src/LogLens.Desktop/LogLens.Desktop.csproj
 ```
 
-## Datos detectados
+## Normalización
 
-LogLens puede extraer:
+LogLens normaliza valores dinámicos como:
 
-- Fecha y hora
-- Nivel
-- Mensaje
-- Servicio
-- Excepción
-- Código HTTP
-- Duración
-- Correlation ID
+- Fechas y horas
+- Direcciones IP
+- Puertos
+- GUID
 - Request ID
+- Correlation ID
 - Trace ID
-- Metadatos JSON
+- Span ID
+- URLs
+- Valores hexadecimales
+- Valores numéricos
+
+Esto permite agrupar mensajes equivalentes aunque cambien sus identificadores, tiempos, direcciones o cantidades.

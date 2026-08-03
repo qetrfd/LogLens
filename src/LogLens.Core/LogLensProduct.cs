@@ -4,6 +4,6 @@ public static class LogLensProduct
 {
     public static ApplicationIdentity Current { get; } = new(
         "LogLens",
-        "0.4.0",
+        "0.5.0",
         "Local log analysis and incident diagnostics for developers.");
 }
