@@ -1,0 +1,237 @@
+<Window
+    x:Class="LogLens.Desktop.Views.MainWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:LogLens.Desktop.ViewModels"
+    x:DataType="vm:MainWindowViewModel"
+    Width="1100"
+    Height="700"
+    MinWidth="850"
+    MinHeight="550"
+    Title="{Binding WindowTitle}"
+    Background="#090D18">
+
+    <Grid RowDefinitions="Auto,*">
+        <Border
+            Grid.Row="0"
+            Padding="26,20"
+            Background="#101727"
+            BorderBrush="#26334F"
+            BorderThickness="0,0,0,1">
+
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="4">
+                    <TextBlock
+                        Text="{Binding ProductName}"
+                        FontSize="28"
+                        FontWeight="Bold"
+                        Foreground="#F8FAFC" />
+
+                    <TextBlock
+                        Text="{Binding Description}"
+                        FontSize="13"
+                        Foreground="#94A3B8" />
+                </StackPanel>
+
+                <Border
+                    Grid.Column="1"
+                    Padding="14,8"
+                    CornerRadius="10"
+                    Background="#19233A">
+
+                    <TextBlock
+                        Text="{Binding Version}"
+                        FontWeight="SemiBold"
+                        Foreground="#A5B4FC" />
+                </Border>
+            </Grid>
+        </Border>
+
+        <Grid
+            Grid.Row="1"
+            Margin="28"
+            ColumnDefinitions="1.4*,0.8*"
+            ColumnSpacing="24">
+
+            <Border
+                Grid.Column="0"
+                Padding="30"
+                CornerRadius="18"
+                Background="#101727"
+                BorderBrush="#26334F"
+                BorderThickness="1">
+
+                <StackPanel Spacing="22">
+                    <TextBlock
+                        Text="{Binding CurrentPhase}"
+                        FontSize="15"
+                        FontWeight="SemiBold"
+                        Foreground="#818CF8" />
+
+                    <TextBlock
+                        Text="Analiza tus logs sin perderte entre miles de líneas"
+                        FontSize="36"
+                        FontWeight="Bold"
+                        TextWrapping="Wrap"
+                        Foreground="#F8FAFC" />
+
+                    <TextBlock
+                        Text="LogLens agrupará errores, identificará incidentes y ayudará a encontrar problemas técnicos sin enviar tus datos a servicios externos."
+                        FontSize="17"
+                        LineHeight="26"
+                        TextWrapping="Wrap"
+                        Foreground="#CBD5E1" />
+
+                    <Border
+                        Padding="20"
+                        CornerRadius="14"
+                        Background="#0B1220"
+                        BorderBrush="#26334F"
+                        BorderThickness="1">
+
+                        <StackPanel Spacing="8">
+                            <TextBlock
+                                Text="Estructura inicial preparada"
+                                FontSize="18"
+                                FontWeight="SemiBold"
+                                Foreground="#F8FAFC" />
+
+                            <TextBlock
+                                Text="Core, Application, Infrastructure y aplicación de escritorio conectados."
+                                TextWrapping="Wrap"
+                                Foreground="#94A3B8" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border
+                        Padding="20"
+                        CornerRadius="14"
+                        Background="#111B2E">
+
+                        <StackPanel Spacing="8">
+                            <TextBlock
+                                Text="Próxima capacidad"
+                                FontSize="14"
+                                FontWeight="SemiBold"
+                                Foreground="#818CF8" />
+
+                            <TextBlock
+                                Text="Importar y procesar archivos de logs"
+                                FontSize="18"
+                                FontWeight="SemiBold"
+                                Foreground="#F8FAFC" />
+
+                            <TextBlock
+                                Text="La siguiente fase añadirá los modelos de dominio y el procesamiento progresivo de entradas."
+                                TextWrapping="Wrap"
+                                Foreground="#94A3B8" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <StackPanel
+                Grid.Column="1"
+                Spacing="20">
+
+                <Border
+                    Padding="24"
+                    CornerRadius="18"
+                    Background="#101727"
+                    BorderBrush="#26334F"
+                    BorderThickness="1">
+
+                    <StackPanel Spacing="18">
+                        <TextBlock
+                            Text="Entorno actual"
+                            FontSize="20"
+                            FontWeight="SemiBold"
+                            Foreground="#F8FAFC" />
+
+                        <StackPanel Spacing="5">
+                            <TextBlock
+                                Text="Sistema"
+                                FontSize="12"
+                                Foreground="#64748B" />
+
+                            <TextBlock
+                                Text="{Binding RuntimeDescription}"
+                                TextWrapping="Wrap"
+                                Foreground="#CBD5E1" />
+                        </StackPanel>
+
+                        <StackPanel Spacing="5">
+                            <TextBlock
+                                Text="Framework"
+                                FontSize="12"
+                                Foreground="#64748B" />
+
+                            <TextBlock
+                                Text="{Binding FrameworkDescription}"
+                                TextWrapping="Wrap"
+                                Foreground="#CBD5E1" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border
+                    Padding="24"
+                    CornerRadius="18"
+                    Background="#101727"
+                    BorderBrush="#26334F"
+                    BorderThickness="1">
+
+                    <StackPanel Spacing="14">
+                        <TextBlock
+                            Text="Estado"
+                            FontSize="20"
+                            FontWeight="SemiBold"
+                            Foreground="#F8FAFC" />
+
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                            <Border
+                                Width="12"
+                                Height="12"
+                                CornerRadius="6"
+                                Background="#22C55E"
+                                VerticalAlignment="Center" />
+
+                            <TextBlock
+                                Grid.Column="1"
+                                Text="Core preparado"
+                                Foreground="#CBD5E1" />
+                        </Grid>
+
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                            <Border
+                                Width="12"
+                                Height="12"
+                                CornerRadius="6"
+                                Background="#22C55E"
+                                VerticalAlignment="Center" />
+
+                            <TextBlock
+                                Grid.Column="1"
+                                Text="Arquitectura por capas"
+                                Foreground="#CBD5E1" />
+                        </Grid>
+
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                            <Border
+                                Width="12"
+                                Height="12"
+                                CornerRadius="6"
+                                Background="#22C55E"
+                                VerticalAlignment="Center" />
+
+                            <TextBlock
+                                Grid.Column="1"
+                                Text="Interfaz Avalonia"
+                                Foreground="#CBD5E1" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>

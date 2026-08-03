@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>loglens</AssemblyName>
+    <RootNamespace>LogLens.Cli</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../LogLens.Application/LogLens.Application.csproj" />
+    <ProjectReference Include="../LogLens.Infrastructure/LogLens.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

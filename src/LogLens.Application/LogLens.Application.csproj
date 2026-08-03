@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>LogLens.Application</AssemblyName>
+    <RootNamespace>LogLens.Application</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../LogLens.Core/LogLens.Core.csproj" />
+  </ItemGroup>
+</Project>
