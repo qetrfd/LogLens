@@ -8,12 +8,19 @@ public sealed class LogLensProductTests
     [Fact]
     public void CurrentContainsExpectedProductInformation()
     {
-        ApplicationIdentity product = LogLensProduct.Current;
+        ApplicationIdentity product =
+            LogLensProduct.Current;
 
-        Assert.Equal("LogLens", product.Name);
-        Assert.Equal("0.3.0", product.Version);
+        Assert.Equal(
+            "LogLens",
+            product.Name);
+
+        Assert.Equal(
+            "0.4.0",
+            product.Version);
 
         Assert.False(
-            string.IsNullOrWhiteSpace(product.Description));
+            string.IsNullOrWhiteSpace(
+                product.Description));
     }
 }

@@ -28,10 +28,11 @@ public sealed class MainWindowViewModel
         _summary.Product.Description;
 
     public string CurrentPhase =>
-        "Fase 3 · Lectura progresiva";
+        "Fase 4 · Parsers estructurados";
 
     public string RuntimeDescription =>
-        $"{_summary.Runtime.OperatingSystem} · {_summary.Runtime.Architecture}";
+        $"{_summary.Runtime.OperatingSystem} · " +
+        $"{_summary.Runtime.Architecture}";
 
     public string FrameworkDescription =>
         _summary.Runtime.Framework;
