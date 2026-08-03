@@ -11,7 +11,9 @@ public sealed class LogLensProductTests
         ApplicationIdentity product = LogLensProduct.Current;
 
         Assert.Equal("LogLens", product.Name);
-        Assert.Equal("0.2.0", product.Version);
-        Assert.False(string.IsNullOrWhiteSpace(product.Description));
+        Assert.Equal("0.3.0", product.Version);
+
+        Assert.False(
+            string.IsNullOrWhiteSpace(product.Description));
     }
 }

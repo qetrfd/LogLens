@@ -2,29 +2,55 @@
 
 Local log analysis and incident diagnostics for developers.
 
-LogLens será una aplicación multiplataforma para analizar archivos de logs, agrupar errores repetidos, detectar incidentes y explicar problemas técnicos mediante reglas locales.
+LogLens es una aplicación multiplataforma para procesar archivos de logs, agrupar errores repetidos, detectar incidentes y explicar problemas técnicos mediante reglas locales.
 
 ## Estado
 
-El proyecto se encuentra en su fase inicial.
+Versión actual: 0.3.0
 
 La solución incluye:
 
-- Núcleo de dominio
-- Capa de aplicación
-- Infraestructura
+- Modelo de dominio
+- Lectura progresiva de archivos
+- Procesamiento mediante streaming
+- Progreso y cancelación
 - CLI
 - Aplicación de escritorio con Avalonia
 - Pruebas automatizadas
 
-## Tecnologías
+## Formatos admitidos
 
-- C#
-- .NET 10
-- Avalonia UI
-- xUnit
+- `.log`
+- `.txt`
+- `.jsonl`
+- `.ndjson`
 
-## Ejecutar la CLI
+## Leer un archivo
 
 ```bash
-dotnet run --project src/LogLens.Cli
+dotnet run --project src/LogLens.Cli/LogLens.Cli.csproj -- read archivo.log
+```
+
+## Elegir cantidad de líneas de vista previa
+
+```bash
+dotnet run --project src/LogLens.Cli/LogLens.Cli.csproj -- read archivo.log --preview 20
+```
+
+## Ejecutar la aplicación
+
+```bash
+dotnet run --project src/LogLens.Desktop/LogLens.Desktop.csproj
+```
+
+## Compilar
+
+```bash
+dotnet build LogLens.slnx
+```
+
+## Ejecutar pruebas
+
+```bash
+dotnet test LogLens.slnx
+```

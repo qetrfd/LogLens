@@ -28,7 +28,7 @@ public sealed class MainWindowViewModel
         _summary.Product.Description;
 
     public string CurrentPhase =>
-        "Fase 2 · Modelo de dominio";
+        "Fase 3 · Lectura progresiva";
 
     public string RuntimeDescription =>
         $"{_summary.Runtime.OperatingSystem} · {_summary.Runtime.Architecture}";
