@@ -1,8 +1,17 @@
 <Application
-    x:Class="LogLens.Desktop.App"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="using:LogLens.Desktop.Converters"
+    x:Class="LogLens.Desktop.App"
     RequestedThemeVariant="Dark">
+
+    <Application.Resources>
+        <converters:IncidentPriorityBrushConverter
+            x:Key="IncidentPriorityBrushConverter" />
+
+        <converters:LogLevelBrushConverter
+            x:Key="LogLevelBrushConverter" />
+    </Application.Resources>
 
     <Application.Styles>
         <FluentTheme />

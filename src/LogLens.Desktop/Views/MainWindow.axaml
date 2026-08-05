@@ -1,237 +1,1255 @@
 <Window
-    x:Class="LogLens.Desktop.Views.MainWindow"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:vm="using:LogLens.Desktop.ViewModels"
-    x:DataType="vm:MainWindowViewModel"
-    Width="1100"
-    Height="700"
-    MinWidth="850"
-    MinHeight="550"
+    x:Class="LogLens.Desktop.Views.MainWindow"
+    x:CompileBindings="False"
     Title="{Binding WindowTitle}"
-    Background="#090D18">
+    Width="1360"
+    Height="860"
+    MinWidth="1040"
+    MinHeight="680"
+    Background="#080D18"
+    DragDrop.AllowDrop="True">
 
-    <Grid RowDefinitions="Auto,*">
+    <Window.Styles>
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="#111827" />
+            <Setter Property="BorderBrush" Value="#263247" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="Padding" Value="18" />
+        </Style>
+
+        <Style Selector="Border.list-card">
+            <Setter Property="Background" Value="#151F31" />
+            <Setter Property="BorderBrush" Value="#2A3850" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="9" />
+            <Setter Property="Padding" Value="13" />
+        </Style>
+
+        <Style Selector="Button">
+            <Setter Property="Padding" Value="16,10" />
+            <Setter Property="MinHeight" Value="40" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+
+        <Style Selector="Button.primary">
+            <Setter Property="Background" Value="#2563EB" />
+            <Setter Property="Foreground" Value="White" />
+        </Style>
+
+        <Style Selector="Button.secondary">
+            <Setter Property="Background" Value="#1E293B" />
+            <Setter Property="Foreground" Value="#E2E8F0" />
+        </Style>
+
+        <Style Selector="Button.danger">
+            <Setter Property="Background" Value="#991B1B" />
+            <Setter Property="Foreground" Value="White" />
+        </Style>
+
+        <Style Selector="TextBlock.title">
+            <Setter Property="FontSize" Value="25" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Foreground" Value="#F8FAFC" />
+        </Style>
+
+        <Style Selector="TextBlock.section-title">
+            <Setter Property="FontSize" Value="17" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="#F8FAFC" />
+        </Style>
+
+        <Style Selector="TextBlock.muted">
+            <Setter Property="Foreground" Value="#94A3B8" />
+        </Style>
+
+        <Style Selector="TextBlock.label">
+            <Setter Property="Foreground" Value="#94A3B8" />
+            <Setter Property="FontSize" Value="12" />
+        </Style>
+
+        <Style Selector="TextBlock.metric">
+            <Setter Property="Foreground" Value="#F8FAFC" />
+            <Setter Property="FontSize" Value="24" />
+            <Setter Property="FontWeight" Value="Bold" />
+        </Style>
+
+        <Style Selector="ListBox">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter
+                Property="ScrollViewer.HorizontalScrollBarVisibility"
+                Value="Disabled" />
+        </Style>
+
+        <Style Selector="ListBoxItem">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0,0,0,9" />
+            <Setter
+                Property="HorizontalContentAlignment"
+                Value="Stretch" />
+        </Style>
+    </Window.Styles>
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
         <Border
             Grid.Row="0"
-            Padding="26,20"
-            Background="#101727"
-            BorderBrush="#26334F"
-            BorderThickness="0,0,0,1">
+            Background="#0D1422"
+            BorderBrush="#263247"
+            BorderThickness="0,0,0,1"
+            Padding="24,18">
 
-            <Grid ColumnDefinitions="*,Auto">
-                <StackPanel Spacing="4">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <Border
+                    Width="48"
+                    Height="48"
+                    CornerRadius="12"
+                    Background="#2563EB">
+
                     <TextBlock
-                        Text="{Binding ProductName}"
-                        FontSize="28"
+                        Text="L"
+                        FontSize="25"
                         FontWeight="Bold"
-                        Foreground="#F8FAFC" />
+                        Foreground="White"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center" />
+                </Border>
+
+                <StackPanel
+                    Grid.Column="1"
+                    Margin="14,0,24,0"
+                    VerticalAlignment="Center">
+
+                    <StackPanel
+                        Orientation="Horizontal"
+                        Spacing="10">
+
+                        <TextBlock
+                            Classes="title"
+                            Text="{Binding ProductName}" />
+
+                        <Border
+                            Background="#1E3A8A"
+                            CornerRadius="8"
+                            Padding="9,4"
+                            VerticalAlignment="Center">
+
+                            <TextBlock
+                                Text="{Binding Version}"
+                                Foreground="#BFDBFE"
+                                FontSize="12"
+                                FontWeight="SemiBold" />
+                        </Border>
+                    </StackPanel>
 
                     <TextBlock
-                        Text="{Binding Description}"
-                        FontSize="13"
-                        Foreground="#94A3B8" />
+                        Classes="muted"
+                        Text="{Binding CurrentPhase}"
+                        Margin="0,3,0,0" />
                 </StackPanel>
 
-                <Border
-                    Grid.Column="1"
-                    Padding="14,8"
-                    CornerRadius="10"
-                    Background="#19233A">
+                <StackPanel
+                    Grid.Column="2"
+                    Orientation="Horizontal"
+                    Spacing="9"
+                    VerticalAlignment="Center">
 
-                    <TextBlock
-                        Text="{Binding Version}"
-                        FontWeight="SemiBold"
-                        Foreground="#A5B4FC" />
-                </Border>
+                    <Button
+                        Classes="secondary"
+                        Content="Seleccionar archivo"
+                        Command="{Binding SelectFileCommand}" />
+
+                    <Button
+                        Classes="primary"
+                        Content="Analizar"
+                        Command="{Binding AnalyzeCommand}" />
+
+                    <Button
+                        Classes="danger"
+                        Content="Cancelar"
+                        IsVisible="{Binding IsAnalyzing}"
+                        Command="{Binding CancelCommand}" />
+
+                    <Button
+                        Classes="secondary"
+                        Content="Limpiar"
+                        Command="{Binding ClearCommand}" />
+                </StackPanel>
             </Grid>
         </Border>
 
         <Grid
             Grid.Row="1"
-            Margin="28"
-            ColumnDefinitions="1.4*,0.8*"
-            ColumnSpacing="24">
+            Margin="24,16,24,0">
 
             <Border
-                Grid.Column="0"
-                Padding="30"
-                CornerRadius="18"
-                Background="#101727"
-                BorderBrush="#26334F"
-                BorderThickness="1">
+                Background="#111827"
+                BorderBrush="#334155"
+                BorderThickness="1"
+                CornerRadius="12"
+                Padding="18">
 
-                <StackPanel Spacing="22">
-                    <TextBlock
-                        Text="{Binding CurrentPhase}"
-                        FontSize="15"
-                        FontWeight="SemiBold"
-                        Foreground="#818CF8" />
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                    <Border
+                        Width="42"
+                        Height="42"
+                        CornerRadius="10"
+                        Background="#1E293B">
+
+                        <TextBlock
+                            Text="↥"
+                            FontSize="23"
+                            Foreground="#93C5FD"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center" />
+                    </Border>
+
+                    <StackPanel
+                        Grid.Column="1"
+                        Margin="14,0"
+                        VerticalAlignment="Center">
+
+                        <TextBlock
+                            Text="{Binding SelectedFileName}"
+                            Foreground="#F8FAFC"
+                            FontWeight="SemiBold"
+                            FontSize="15"
+                            TextTrimming="CharacterEllipsis" />
+
+                        <TextBlock
+                            Text="{Binding SelectedFilePath}"
+                            Classes="muted"
+                            FontSize="12"
+                            TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
 
                     <TextBlock
-                        Text="Analiza tus logs sin perderte entre miles de líneas"
-                        FontSize="36"
-                        FontWeight="Bold"
-                        TextWrapping="Wrap"
-                        Foreground="#F8FAFC" />
+                        Grid.Column="2"
+                        Text="{Binding SelectedFileMetadata}"
+                        Classes="muted"
+                        VerticalAlignment="Center"
+                        TextAlignment="Right" />
+                </Grid>
+            </Border>
+
+            <Border
+                IsVisible="{Binding IsDropActive}"
+                Background="#E61E3A8A"
+                BorderBrush="#60A5FA"
+                BorderThickness="2"
+                CornerRadius="12"
+                Padding="18">
+
+                <StackPanel
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
 
                     <TextBlock
-                        Text="LogLens agrupará errores, identificará incidentes y ayudará a encontrar problemas técnicos sin enviar tus datos a servicios externos."
+                        Text="Suelta el archivo para cargarlo"
                         FontSize="17"
-                        LineHeight="26"
-                        TextWrapping="Wrap"
-                        Foreground="#CBD5E1" />
+                        FontWeight="Bold"
+                        Foreground="White"
+                        HorizontalAlignment="Center" />
+
+                    <TextBlock
+                        Text=".log, .txt, .jsonl o .ndjson"
+                        Foreground="#BFDBFE"
+                        Margin="0,3,0,0"
+                        HorizontalAlignment="Center" />
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Grid
+            Grid.Row="2"
+            Margin="24,16">
+
+            <Border
+                Classes="card"
+                IsVisible="{Binding ShowStartState}">
+
+                <StackPanel
+                    MaxWidth="650"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Spacing="14">
 
                     <Border
-                        Padding="20"
-                        CornerRadius="14"
-                        Background="#0B1220"
-                        BorderBrush="#26334F"
-                        BorderThickness="1">
+                        Width="72"
+                        Height="72"
+                        CornerRadius="20"
+                        Background="#172554">
 
-                        <StackPanel Spacing="8">
-                            <TextBlock
-                                Text="Estructura inicial preparada"
-                                FontSize="18"
-                                FontWeight="SemiBold"
-                                Foreground="#F8FAFC" />
-
-                            <TextBlock
-                                Text="Core, Application, Infrastructure y aplicación de escritorio conectados."
-                                TextWrapping="Wrap"
-                                Foreground="#94A3B8" />
-                        </StackPanel>
+                        <TextBlock
+                            Text="⌕"
+                            FontSize="40"
+                            Foreground="#93C5FD"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center" />
                     </Border>
 
-                    <Border
-                        Padding="20"
-                        CornerRadius="14"
-                        Background="#111B2E">
+                    <TextBlock
+                        Text="{Binding StatusText}"
+                        Classes="title"
+                        HorizontalAlignment="Center"
+                        TextAlignment="Center" />
 
-                        <StackPanel Spacing="8">
-                            <TextBlock
-                                Text="Próxima capacidad"
-                                FontSize="14"
-                                FontWeight="SemiBold"
-                                Foreground="#818CF8" />
+                    <TextBlock
+                        Text="{Binding StatusDetail}"
+                        Classes="muted"
+                        FontSize="15"
+                        HorizontalAlignment="Center"
+                        TextAlignment="Center"
+                        TextWrapping="Wrap" />
 
-                            <TextBlock
-                                Text="Importar y procesar archivos de logs"
-                                FontSize="18"
-                                FontWeight="SemiBold"
-                                Foreground="#F8FAFC" />
+                    <StackPanel
+                        Orientation="Horizontal"
+                        Spacing="10"
+                        HorizontalAlignment="Center"
+                        Margin="0,8,0,0">
 
-                            <TextBlock
-                                Text="La siguiente fase añadirá los modelos de dominio y el procesamiento progresivo de entradas."
-                                TextWrapping="Wrap"
-                                Foreground="#94A3B8" />
-                        </StackPanel>
-                    </Border>
+                        <Button
+                            Classes="secondary"
+                            Content="Seleccionar archivo"
+                            Command="{Binding SelectFileCommand}" />
+
+                        <Button
+                            Classes="primary"
+                            Content="Analizar archivo"
+                            Command="{Binding AnalyzeCommand}" />
+                    </StackPanel>
                 </StackPanel>
             </Border>
 
-            <StackPanel
-                Grid.Column="1"
-                Spacing="20">
+            <Border
+                Classes="card"
+                IsVisible="{Binding ShowProgressState}">
+
+                <StackPanel
+                    MaxWidth="720"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Spacing="15">
+
+                    <TextBlock
+                        Text="{Binding StatusText}"
+                        Classes="title"
+                        HorizontalAlignment="Center"
+                        TextAlignment="Center" />
+
+                    <TextBlock
+                        Text="{Binding StatusDetail}"
+                        Classes="muted"
+                        HorizontalAlignment="Center"
+                        TextAlignment="Center" />
+
+                    <ProgressBar
+                        Minimum="0"
+                        Maximum="100"
+                        Value="{Binding ProgressPercentage}"
+                        Width="620"
+                        Height="16" />
+
+                    <Grid
+                        Width="620"
+                        ColumnDefinitions="*,Auto">
+
+                        <TextBlock
+                            Text="{Binding ProgressLinesText}"
+                            Classes="muted" />
+
+                        <TextBlock
+                            Grid.Column="1"
+                            Text="{Binding ProgressBytesText}"
+                            Classes="muted"
+                            TextAlignment="Right" />
+                    </Grid>
+
+                    <TextBlock
+                        Text="{Binding ProgressPercentage, StringFormat='{}{0:0.##}%'}"
+                        Foreground="#F8FAFC"
+                        FontSize="22"
+                        FontWeight="Bold"
+                        HorizontalAlignment="Center" />
+
+                    <Button
+                        Classes="danger"
+                        Content="Cancelar análisis"
+                        Command="{Binding CancelCommand}"
+                        HorizontalAlignment="Center" />
+                </StackPanel>
+            </Border>
+
+            <Border
+                Classes="card"
+                IsVisible="{Binding ShowErrorState}">
+
+                <StackPanel
+                    MaxWidth="680"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Spacing="13">
+
+                    <Border
+                        Width="68"
+                        Height="68"
+                        CornerRadius="18"
+                        Background="#7F1D1D">
+
+                        <TextBlock
+                            Text="!"
+                            FontSize="35"
+                            FontWeight="Bold"
+                            Foreground="White"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center" />
+                    </Border>
+
+                    <TextBlock
+                        Text="{Binding StatusText}"
+                        Classes="title"
+                        HorizontalAlignment="Center"
+                        TextAlignment="Center" />
+
+                    <TextBlock
+                        Text="{Binding StatusDetail}"
+                        Foreground="#FCA5A5"
+                        TextAlignment="Center"
+                        TextWrapping="Wrap"
+                        HorizontalAlignment="Center" />
+
+                    <Button
+                        Classes="secondary"
+                        Content="Seleccionar otro archivo"
+                        Command="{Binding SelectFileCommand}"
+                        HorizontalAlignment="Center" />
+                </StackPanel>
+            </Border>
+
+            <Border
+                Classes="card"
+                IsVisible="{Binding ShowEmptyState}">
+
+                <StackPanel
+                    MaxWidth="650"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Spacing="13">
+
+                    <TextBlock
+                        Text="∅"
+                        FontSize="58"
+                        Foreground="#64748B"
+                        HorizontalAlignment="Center" />
+
+                    <TextBlock
+                        Text="{Binding StatusText}"
+                        Classes="title"
+                        HorizontalAlignment="Center" />
+
+                    <TextBlock
+                        Text="{Binding StatusDetail}"
+                        Classes="muted"
+                        TextWrapping="Wrap"
+                        TextAlignment="Center" />
+
+                    <Button
+                        Classes="secondary"
+                        Content="Seleccionar otro archivo"
+                        Command="{Binding SelectFileCommand}"
+                        HorizontalAlignment="Center" />
+                </StackPanel>
+            </Border>
+
+            <Grid
+                IsVisible="{Binding ShowResultsState}"
+                RowDefinitions="Auto,*"
+                RowSpacing="14">
+
+                <Grid
+                    Grid.Row="0"
+                    ColumnDefinitions="*,*,*,*,*,*"
+                    ColumnSpacing="10">
+
+                    <Border Classes="card">
+                        <StackPanel>
+                            <TextBlock
+                                Classes="label"
+                                Text="LÍNEAS TOTALES" />
+
+                            <TextBlock
+                                Classes="metric"
+                                Text="{Binding TotalLinesText}" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border
+                        Grid.Column="1"
+                        Classes="card">
+
+                        <StackPanel>
+                            <TextBlock
+                                Classes="label"
+                                Text="PROCESADAS" />
+
+                            <TextBlock
+                                Classes="metric"
+                                Text="{Binding ParsedLinesText}" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border
+                        Grid.Column="2"
+                        Classes="card">
+
+                        <StackPanel>
+                            <TextBlock
+                                Classes="label"
+                                Text="GRUPOS" />
+
+                            <TextBlock
+                                Classes="metric"
+                                Text="{Binding GroupCountText}" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border
+                        Grid.Column="3"
+                        Classes="card">
+
+                        <StackPanel>
+                            <TextBlock
+                                Classes="label"
+                                Text="DIAGNÓSTICOS" />
+
+                            <TextBlock
+                                Classes="metric"
+                                Text="{Binding DiagnosisCountText}" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border
+                        Grid.Column="4"
+                        Classes="card">
+
+                        <StackPanel>
+                            <TextBlock
+                                Classes="label"
+                                Text="ATENCIÓN INMEDIATA" />
+
+                            <TextBlock
+                                Classes="metric"
+                                Text="{Binding ImmediateAttentionText}" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border
+                        Grid.Column="5"
+                        Classes="card">
+
+                        <StackPanel>
+                            <TextBlock
+                                Classes="label"
+                                Text="CRÍTICOS" />
+
+                            <TextBlock
+                                Classes="metric"
+                                Text="{Binding CriticalStatusText}" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
 
                 <Border
-                    Padding="24"
-                    CornerRadius="18"
-                    Background="#101727"
-                    BorderBrush="#26334F"
-                    BorderThickness="1">
+                    Grid.Row="1"
+                    Classes="card"
+                    Padding="14">
 
-                    <StackPanel Spacing="18">
-                        <TextBlock
-                            Text="Entorno actual"
-                            FontSize="20"
-                            FontWeight="SemiBold"
-                            Foreground="#F8FAFC" />
+                    <TabControl>
+                        <TabItem Header="Incidentes agrupados">
+                            <Grid
+                                Margin="0,12,0,0"
+                                ColumnDefinitions="410,6,*">
 
-                        <StackPanel Spacing="5">
-                            <TextBlock
-                                Text="Sistema"
-                                FontSize="12"
-                                Foreground="#64748B" />
+                                <Grid
+                                    Grid.Column="0"
+                                    RowDefinitions="Auto,*"
+                                    RowSpacing="10">
 
-                            <TextBlock
-                                Text="{Binding RuntimeDescription}"
-                                TextWrapping="Wrap"
-                                Foreground="#CBD5E1" />
-                        </StackPanel>
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock
+                                            Classes="section-title"
+                                            Text="Incidentes" />
 
-                        <StackPanel Spacing="5">
-                            <TextBlock
-                                Text="Framework"
-                                FontSize="12"
-                                Foreground="#64748B" />
+                                        <TextBlock
+                                            Grid.Column="1"
+                                            Classes="muted"
+                                            Text="{Binding GroupCountText}" />
+                                    </Grid>
 
-                            <TextBlock
-                                Text="{Binding FrameworkDescription}"
-                                TextWrapping="Wrap"
-                                Foreground="#CBD5E1" />
-                        </StackPanel>
-                    </StackPanel>
+                                    <ListBox
+                                        Grid.Row="1"
+                                        ItemsSource="{Binding GroupItems}"
+                                        SelectedItem="{Binding SelectedGroup, Mode=TwoWay}">
+
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Classes="list-card">
+                                                    <Grid
+                                                        RowDefinitions="Auto,Auto,Auto"
+                                                        RowSpacing="7">
+
+                                                        <Grid ColumnDefinitions="*,Auto">
+                                                            <TextBlock
+                                                                Text="{Binding Message}"
+                                                                Foreground="#F8FAFC"
+                                                                FontWeight="SemiBold"
+                                                                TextWrapping="Wrap"
+                                                                MaxLines="2" />
+
+                                                            <Border
+                                                                Grid.Column="1"
+                                                                Background="{Binding Level, Converter={StaticResource LogLevelBrushConverter}}"
+                                                                CornerRadius="7"
+                                                                Padding="8,3"
+                                                                Margin="10,0,0,0">
+
+                                                                <TextBlock
+                                                                    Text="{Binding LevelText}"
+                                                                    Foreground="White"
+                                                                    FontSize="11"
+                                                                    FontWeight="Bold" />
+                                                            </Border>
+                                                        </Grid>
+
+                                                        <Grid
+                                                            Grid.Row="1"
+                                                            ColumnDefinitions="*,Auto">
+
+                                                            <TextBlock
+                                                                Text="{Binding OccurrenceText}"
+                                                                Foreground="#93C5FD"
+                                                                FontWeight="SemiBold" />
+
+                                                            <TextBlock
+                                                                Grid.Column="1"
+                                                                Text="{Binding RecurrenceText}"
+                                                                Classes="muted"
+                                                                FontSize="12" />
+                                                        </Grid>
+
+                                                        <TextBlock
+                                                            Grid.Row="2"
+                                                            Text="{Binding ShortFingerprint}"
+                                                            Classes="muted"
+                                                            FontFamily="Menlo,Consolas,monospace"
+                                                            FontSize="11" />
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+
+                                    <StackPanel
+                                        Grid.Row="1"
+                                        IsVisible="{Binding HasNoGroups}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center">
+
+                                        <TextBlock
+                                            Text="No se detectaron grupos."
+                                            Classes="muted" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <GridSplitter
+                                    Grid.Column="1"
+                                    Width="6"
+                                    Background="#263247"
+                                    ResizeDirection="Columns" />
+
+                                <Border
+                                    Grid.Column="2"
+                                    Margin="14,0,0,0"
+                                    Background="#0D1422"
+                                    CornerRadius="10"
+                                    Padding="18">
+
+                                    <Grid>
+                                        <StackPanel
+                                            IsVisible="{Binding HasNoSelectedGroup}"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center">
+
+                                            <TextBlock
+                                                Text="Selecciona un incidente"
+                                                Classes="section-title" />
+
+                                            <TextBlock
+                                                Text="Aquí aparecerán sus muestras y metadatos."
+                                                Classes="muted"
+                                                Margin="0,5,0,0" />
+                                        </StackPanel>
+
+                                        <ScrollViewer
+                                            IsVisible="{Binding HasSelectedGroup}">
+
+                                            <StackPanel Spacing="16">
+                                                <Grid ColumnDefinitions="*,Auto">
+                                                    <StackPanel>
+                                                        <TextBlock
+                                                            Text="{Binding SelectedGroup.Message}"
+                                                            Classes="title"
+                                                            TextWrapping="Wrap" />
+
+                                                        <TextBlock
+                                                            Text="{Binding SelectedGroup.RecurrenceText}"
+                                                            Foreground="#93C5FD"
+                                                            Margin="0,5,0,0" />
+                                                    </StackPanel>
+
+                                                    <Border
+                                                        Grid.Column="1"
+                                                        Background="{Binding SelectedGroup.Level, Converter={StaticResource LogLevelBrushConverter}}"
+                                                        CornerRadius="8"
+                                                        Padding="10,5"
+                                                        Margin="14,0,0,0"
+                                                        VerticalAlignment="Top">
+
+                                                        <TextBlock
+                                                            Text="{Binding SelectedGroup.LevelText}"
+                                                            Foreground="White"
+                                                            FontWeight="Bold" />
+                                                    </Border>
+                                                </Grid>
+
+                                                <Border Classes="list-card">
+                                                    <Grid
+                                                        ColumnDefinitions="*,*,*"
+                                                        RowDefinitions="Auto,Auto"
+                                                        ColumnSpacing="14"
+                                                        RowSpacing="12">
+
+                                                        <StackPanel>
+                                                            <TextBlock
+                                                                Classes="label"
+                                                                Text="APARICIONES" />
+
+                                                            <TextBlock
+                                                                Foreground="#F8FAFC"
+                                                                FontWeight="SemiBold"
+                                                                Text="{Binding SelectedGroup.OccurrenceText}" />
+                                                        </StackPanel>
+
+                                                        <StackPanel Grid.Column="1">
+                                                            <TextBlock
+                                                                Classes="label"
+                                                                Text="PRIMERA APARICIÓN" />
+
+                                                            <TextBlock
+                                                                Foreground="#F8FAFC"
+                                                                Text="{Binding SelectedGroup.FirstSeenText}"
+                                                                TextWrapping="Wrap" />
+                                                        </StackPanel>
+
+                                                        <StackPanel Grid.Column="2">
+                                                            <TextBlock
+                                                                Classes="label"
+                                                                Text="ÚLTIMA APARICIÓN" />
+
+                                                            <TextBlock
+                                                                Foreground="#F8FAFC"
+                                                                Text="{Binding SelectedGroup.LastSeenText}"
+                                                                TextWrapping="Wrap" />
+                                                        </StackPanel>
+
+                                                        <StackPanel Grid.Row="1">
+                                                            <TextBlock
+                                                                Classes="label"
+                                                                Text="SERVICIOS" />
+
+                                                            <TextBlock
+                                                                Foreground="#F8FAFC"
+                                                                Text="{Binding SelectedGroup.ServicesText}"
+                                                                TextWrapping="Wrap" />
+                                                        </StackPanel>
+
+                                                        <StackPanel
+                                                            Grid.Row="1"
+                                                            Grid.Column="1">
+
+                                                            <TextBlock
+                                                                Classes="label"
+                                                                Text="EXCEPCIONES" />
+
+                                                            <TextBlock
+                                                                Foreground="#F8FAFC"
+                                                                Text="{Binding SelectedGroup.ExceptionsText}"
+                                                                TextWrapping="Wrap" />
+                                                        </StackPanel>
+
+                                                        <StackPanel
+                                                            Grid.Row="1"
+                                                            Grid.Column="2">
+
+                                                            <TextBlock
+                                                                Classes="label"
+                                                                Text="CÓDIGOS HTTP" />
+
+                                                            <TextBlock
+                                                                Foreground="#F8FAFC"
+                                                                Text="{Binding SelectedGroup.StatusCodesText}"
+                                                                TextWrapping="Wrap" />
+                                                        </StackPanel>
+                                                    </Grid>
+                                                </Border>
+
+                                                <StackPanel>
+                                                    <TextBlock
+                                                        Classes="section-title"
+                                                        Text="Mensaje normalizado" />
+
+                                                    <Border
+                                                        Classes="list-card"
+                                                        Margin="0,8,0,0">
+
+                                                        <TextBlock
+                                                            Text="{Binding SelectedGroup.NormalizedMessage}"
+                                                            Foreground="#CBD5E1"
+                                                            FontFamily="Menlo,Consolas,monospace"
+                                                            TextWrapping="Wrap" />
+                                                    </Border>
+                                                </StackPanel>
+
+                                                <StackPanel>
+                                                    <TextBlock
+                                                        Classes="section-title"
+                                                        Text="Huella digital" />
+
+                                                    <Border
+                                                        Classes="list-card"
+                                                        Margin="0,8,0,0">
+
+                                                        <TextBlock
+                                                            Text="{Binding SelectedGroup.Fingerprint}"
+                                                            Foreground="#93C5FD"
+                                                            FontFamily="Menlo,Consolas,monospace"
+                                                            TextWrapping="Wrap" />
+                                                    </Border>
+                                                </StackPanel>
+
+                                                <StackPanel>
+                                                    <TextBlock
+                                                        Classes="section-title"
+                                                        Text="Muestras del incidente" />
+
+                                                    <ItemsControl
+                                                        Margin="0,8,0,0"
+                                                        ItemsSource="{Binding SelectedGroup.Samples}">
+
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <Border
+                                                                    Classes="list-card"
+                                                                    Margin="0,0,0,9">
+
+                                                                    <StackPanel Spacing="7">
+                                                                        <Grid ColumnDefinitions="Auto,*,Auto">
+                                                                            <TextBlock
+                                                                                Text="{Binding LineNumber, StringFormat='Línea {0}'}"
+                                                                                Foreground="#93C5FD"
+                                                                                FontWeight="SemiBold" />
+
+                                                                            <TextBlock
+                                                                                Grid.Column="1"
+                                                                                Text="{Binding TimestampText}"
+                                                                                Classes="muted"
+                                                                                Margin="12,0"
+                                                                                TextTrimming="CharacterEllipsis" />
+
+                                                                            <TextBlock
+                                                                                Grid.Column="2"
+                                                                                Text="{Binding LevelText}"
+                                                                                Foreground="#F8FAFC" />
+                                                                        </Grid>
+
+                                                                        <TextBlock
+                                                                            Text="{Binding Message}"
+                                                                            Foreground="#F8FAFC"
+                                                                            FontFamily="Menlo,Consolas,monospace"
+                                                                            TextWrapping="Wrap" />
+
+                                                                        <TextBlock
+                                                                            Classes="muted"
+                                                                            Text="{Binding ServiceText}" />
+                                                                    </StackPanel>
+                                                                </Border>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </ScrollViewer>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </TabItem>
+
+                        <TabItem Header="Diagnósticos">
+                            <Grid
+                                Margin="0,12,0,0"
+                                ColumnDefinitions="410,6,*">
+
+                                <Grid
+                                    Grid.Column="0"
+                                    RowDefinitions="Auto,*"
+                                    RowSpacing="10">
+
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock
+                                            Classes="section-title"
+                                            Text="Diagnósticos" />
+
+                                        <TextBlock
+                                            Grid.Column="1"
+                                            Classes="muted"
+                                            Text="{Binding DiagnosisCountText}" />
+                                    </Grid>
+
+                                    <ListBox
+                                        Grid.Row="1"
+                                        ItemsSource="{Binding DiagnosisItems}"
+                                        SelectedItem="{Binding SelectedDiagnosis, Mode=TwoWay}">
+
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Classes="list-card">
+                                                    <Grid
+                                                        RowDefinitions="Auto,Auto,Auto"
+                                                        RowSpacing="7">
+
+                                                        <Grid ColumnDefinitions="*,Auto">
+                                                            <TextBlock
+                                                                Text="{Binding Title}"
+                                                                Foreground="#F8FAFC"
+                                                                FontWeight="SemiBold"
+                                                                TextWrapping="Wrap" />
+
+                                                            <Border
+                                                                Grid.Column="1"
+                                                                Background="{Binding Priority, Converter={StaticResource IncidentPriorityBrushConverter}}"
+                                                                CornerRadius="7"
+                                                                Padding="8,3"
+                                                                Margin="10,0,0,0">
+
+                                                                <TextBlock
+                                                                    Text="{Binding PriorityText}"
+                                                                    Foreground="White"
+                                                                    FontWeight="Bold"
+                                                                    FontSize="11" />
+                                                            </Border>
+                                                        </Grid>
+
+                                                        <TextBlock
+                                                            Grid.Row="1"
+                                                            Text="{Binding Summary}"
+                                                            Classes="muted"
+                                                            TextWrapping="Wrap"
+                                                            MaxLines="3" />
+
+                                                        <Grid
+                                                            Grid.Row="2"
+                                                            ColumnDefinitions="*,Auto">
+
+                                                            <TextBlock
+                                                                Text="{Binding RuleId}"
+                                                                Foreground="#93C5FD"
+                                                                FontFamily="Menlo,Consolas,monospace"
+                                                                FontSize="11" />
+
+                                                            <TextBlock
+                                                                Grid.Column="1"
+                                                                Text="{Binding ConfidenceText}"
+                                                                Foreground="#F8FAFC"
+                                                                FontWeight="SemiBold" />
+                                                        </Grid>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+
+                                    <StackPanel
+                                        Grid.Row="1"
+                                        IsVisible="{Binding HasNoDiagnoses}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center">
+
+                                        <TextBlock
+                                            Text="No se generaron diagnósticos."
+                                            Classes="muted" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <GridSplitter
+                                    Grid.Column="1"
+                                    Width="6"
+                                    Background="#263247"
+                                    ResizeDirection="Columns" />
+
+                                <Border
+                                    Grid.Column="2"
+                                    Margin="14,0,0,0"
+                                    Background="#0D1422"
+                                    CornerRadius="10"
+                                    Padding="18">
+
+                                    <Grid>
+                                        <StackPanel
+                                            IsVisible="{Binding HasNoSelectedDiagnosis}"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center">
+
+                                            <TextBlock
+                                                Text="Selecciona un diagnóstico"
+                                                Classes="section-title" />
+
+                                            <TextBlock
+                                                Text="Aquí aparecerán la evidencia y las acciones recomendadas."
+                                                Classes="muted"
+                                                Margin="0,5,0,0"
+                                                TextAlignment="Center" />
+                                        </StackPanel>
+
+                                        <ScrollViewer
+                                            IsVisible="{Binding HasSelectedDiagnosis}">
+
+                                            <StackPanel Spacing="17">
+                                                <Grid ColumnDefinitions="*,Auto">
+                                                    <StackPanel>
+                                                        <TextBlock
+                                                            Text="{Binding SelectedDiagnosis.Title}"
+                                                            Classes="title"
+                                                            TextWrapping="Wrap" />
+
+                                                        <TextBlock
+                                                            Text="{Binding SelectedDiagnosis.RuleId}"
+                                                            Foreground="#93C5FD"
+                                                            FontFamily="Menlo,Consolas,monospace"
+                                                            Margin="0,5,0,0" />
+                                                    </StackPanel>
+
+                                                    <Border
+                                                        Grid.Column="1"
+                                                        Background="{Binding SelectedDiagnosis.Priority, Converter={StaticResource IncidentPriorityBrushConverter}}"
+                                                        CornerRadius="8"
+                                                        Padding="11,6"
+                                                        Margin="14,0,0,0"
+                                                        VerticalAlignment="Top">
+
+                                                        <TextBlock
+                                                            Text="{Binding SelectedDiagnosis.PriorityText}"
+                                                            Foreground="White"
+                                                            FontWeight="Bold" />
+                                                    </Border>
+                                                </Grid>
+
+                                                <Border Classes="list-card">
+                                                    <StackPanel Spacing="7">
+                                                        <TextBlock
+                                                            Classes="label"
+                                                            Text="RESUMEN" />
+
+                                                        <TextBlock
+                                                            Text="{Binding SelectedDiagnosis.Summary}"
+                                                            Foreground="#F8FAFC"
+                                                            TextWrapping="Wrap"
+                                                            FontSize="15" />
+                                                    </StackPanel>
+                                                </Border>
+
+                                                <Grid
+                                                    ColumnDefinitions="*,*,*"
+                                                    ColumnSpacing="10">
+
+                                                    <Border Classes="list-card">
+                                                        <StackPanel>
+                                                            <TextBlock
+                                                                Classes="label"
+                                                                Text="PRIORIDAD" />
+
+                                                            <TextBlock
+                                                                Foreground="#F8FAFC"
+                                                                FontSize="18"
+                                                                FontWeight="Bold"
+                                                                Text="{Binding SelectedDiagnosis.PriorityText}" />
+                                                        </StackPanel>
+                                                    </Border>
+
+                                                    <Border
+                                                        Grid.Column="1"
+                                                        Classes="list-card">
+
+                                                        <StackPanel>
+                                                            <TextBlock
+                                                                Classes="label"
+                                                                Text="CONFIANZA" />
+
+                                                            <TextBlock
+                                                                Foreground="#F8FAFC"
+                                                                FontSize="18"
+                                                                FontWeight="Bold"
+                                                                Text="{Binding SelectedDiagnosis.ConfidenceText}" />
+                                                        </StackPanel>
+                                                    </Border>
+
+                                                    <Border
+                                                        Grid.Column="2"
+                                                        Classes="list-card">
+
+                                                        <StackPanel>
+                                                            <TextBlock
+                                                                Classes="label"
+                                                                Text="DETECTADO" />
+
+                                                            <TextBlock
+                                                                Foreground="#F8FAFC"
+                                                                Text="{Binding SelectedDiagnosis.DetectedAtText}"
+                                                                TextWrapping="Wrap" />
+                                                        </StackPanel>
+                                                    </Border>
+                                                </Grid>
+
+                                                <StackPanel>
+                                                    <TextBlock
+                                                        Classes="section-title"
+                                                        Text="Evidencia" />
+
+                                                    <ItemsControl
+                                                        Margin="0,8,0,0"
+                                                        ItemsSource="{Binding SelectedDiagnosis.Evidence}">
+
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <Border
+                                                                    Classes="list-card"
+                                                                    Margin="0,0,0,8">
+
+                                                                    <Grid ColumnDefinitions="190,*">
+                                                                        <TextBlock
+                                                                            Text="{Binding Label}"
+                                                                            Foreground="#93C5FD"
+                                                                            FontWeight="SemiBold" />
+
+                                                                        <TextBlock
+                                                                            Grid.Column="1"
+                                                                            Text="{Binding Value}"
+                                                                            Foreground="#F8FAFC"
+                                                                            TextWrapping="Wrap" />
+                                                                    </Grid>
+                                                                </Border>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                </StackPanel>
+
+                                                <StackPanel>
+                                                    <TextBlock
+                                                        Classes="section-title"
+                                                        Text="Acciones recomendadas" />
+
+                                                    <ItemsControl
+                                                        Margin="0,8,0,0"
+                                                        ItemsSource="{Binding SelectedDiagnosis.RecommendedActions}">
+
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <Border
+                                                                    Classes="list-card"
+                                                                    Margin="0,0,0,8">
+
+                                                                    <Grid ColumnDefinitions="Auto,*">
+                                                                        <Border
+                                                                            Width="26"
+                                                                            Height="26"
+                                                                            CornerRadius="13"
+                                                                            Background="#1E3A8A">
+
+                                                                            <TextBlock
+                                                                                Text="✓"
+                                                                                Foreground="#BFDBFE"
+                                                                                HorizontalAlignment="Center"
+                                                                                VerticalAlignment="Center" />
+                                                                        </Border>
+
+                                                                        <TextBlock
+                                                                            Grid.Column="1"
+                                                                            Margin="11,1,0,0"
+                                                                            Text="{Binding}"
+                                                                            Foreground="#F8FAFC"
+                                                                            TextWrapping="Wrap" />
+                                                                    </Grid>
+                                                                </Border>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                </StackPanel>
+
+                                                <StackPanel>
+                                                    <TextBlock
+                                                        Classes="section-title"
+                                                        Text="Huella relacionada" />
+
+                                                    <Border
+                                                        Classes="list-card"
+                                                        Margin="0,8,0,0">
+
+                                                        <TextBlock
+                                                            Text="{Binding SelectedDiagnosis.Fingerprint}"
+                                                            Foreground="#93C5FD"
+                                                            FontFamily="Menlo,Consolas,monospace"
+                                                            TextWrapping="Wrap" />
+                                                    </Border>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </ScrollViewer>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </TabItem>
+                    </TabControl>
                 </Border>
-
-                <Border
-                    Padding="24"
-                    CornerRadius="18"
-                    Background="#101727"
-                    BorderBrush="#26334F"
-                    BorderThickness="1">
-
-                    <StackPanel Spacing="14">
-                        <TextBlock
-                            Text="Estado"
-                            FontSize="20"
-                            FontWeight="SemiBold"
-                            Foreground="#F8FAFC" />
-
-                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                            <Border
-                                Width="12"
-                                Height="12"
-                                CornerRadius="6"
-                                Background="#22C55E"
-                                VerticalAlignment="Center" />
-
-                            <TextBlock
-                                Grid.Column="1"
-                                Text="Core preparado"
-                                Foreground="#CBD5E1" />
-                        </Grid>
-
-                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                            <Border
-                                Width="12"
-                                Height="12"
-                                CornerRadius="6"
-                                Background="#22C55E"
-                                VerticalAlignment="Center" />
-
-                            <TextBlock
-                                Grid.Column="1"
-                                Text="Arquitectura por capas"
-                                Foreground="#CBD5E1" />
-                        </Grid>
-
-                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                            <Border
-                                Width="12"
-                                Height="12"
-                                CornerRadius="6"
-                                Background="#22C55E"
-                                VerticalAlignment="Center" />
-
-                            <TextBlock
-                                Grid.Column="1"
-                                Text="Interfaz Avalonia"
-                                Foreground="#CBD5E1" />
-                        </Grid>
-                    </StackPanel>
-                </Border>
-            </StackPanel>
+            </Grid>
         </Grid>
+
+        <Border
+            Grid.Row="3"
+            Background="#0D1422"
+            BorderBrush="#263247"
+            BorderThickness="0,1,0,0"
+            Padding="24,10">
+
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock
+                    Text="{Binding StatusText}"
+                    Foreground="#CBD5E1"
+                    TextTrimming="CharacterEllipsis" />
+
+                <StackPanel
+                    Grid.Column="1"
+                    Orientation="Horizontal"
+                    Spacing="16">
+
+                    <TextBlock
+                        Text="{Binding AnalysisCompletedText}"
+                        Classes="muted" />
+
+                    <TextBlock
+                        Text="{Binding RuntimeDescription}"
+                        Classes="muted" />
+                </StackPanel>
+            </Grid>
+        </Border>
     </Grid>
 </Window>

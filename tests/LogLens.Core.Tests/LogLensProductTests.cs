@@ -16,7 +16,7 @@ public sealed class LogLensProductTests
             product.Name);
 
         Assert.Equal(
-            "0.6.0",
+            "0.7.0",
             product.Version);
 
         Assert.False(

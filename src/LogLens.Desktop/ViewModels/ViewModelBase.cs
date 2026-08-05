@@ -3,34 +3,40 @@ using System.Runtime.CompilerServices;
 
 namespace LogLens.Desktop.ViewModels;
 
-public abstract class ViewModelBase : INotifyPropertyChanged
+public abstract class ViewModelBase
+    : INotifyPropertyChanged
 {
-    public event PropertyChangedEventHandler? PropertyChanged;
+    public event PropertyChangedEventHandler?
+        PropertyChanged;
 
     protected bool SetProperty<T>(
         ref T field,
         T value,
-        [CallerMemberName] string? propertyName = null)
+        [CallerMemberName]
+        string? propertyName = null)
     {
-        if (EqualityComparer<T>.Default.Equals(field, value))
+        if (
+            EqualityComparer<T>.Default.Equals(
+                field,
+                value))
         {
             return false;
         }
 
         field = value;
 
-        PropertyChanged?.Invoke(
-            this,
-            new PropertyChangedEventArgs(propertyName));
+        RaisePropertyChanged(propertyName);
 
         return true;
     }
 
-    protected void OnPropertyChanged(
-        [CallerMemberName] string? propertyName = null)
+    protected void RaisePropertyChanged(
+        [CallerMemberName]
+        string? propertyName = null)
     {
         PropertyChanged?.Invoke(
             this,
-            new PropertyChangedEventArgs(propertyName));
+            new PropertyChangedEventArgs(
+                propertyName));
     }
 }
