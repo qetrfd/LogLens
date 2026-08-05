@@ -5,13 +5,18 @@ namespace LogLens.Desktop.ViewModels;
 
 public sealed class LogSampleItemViewModel
 {
-    public long LineNumber { get; }
+    public LogGroupSample Model { get; }
+
+    public long LineNumber =>
+        Model.LineNumber;
 
     public string TimestampText { get; }
 
-    public string LevelText { get; }
+    public string LevelText =>
+        Model.Level.ToString();
 
-    public string Message { get; }
+    public string Message =>
+        Model.Message;
 
     public string ServiceText { get; }
 
@@ -19,38 +24,46 @@ public sealed class LogSampleItemViewModel
 
     public string StatusCodeText { get; }
 
-    public LogSampleItemViewModel(
-        LogGroupSample sample)
-    {
-        ArgumentNullException.ThrowIfNull(sample);
+    public string CompleteText =>
+        string.Join(
+            Environment.NewLine,
+            [
+                $"Línea: {LineNumber}",
+                $"Fecha: {TimestampText}",
+                $"Nivel: {LevelText}",
+                $"Servicio: {ServiceText}",
+                $"Excepción: {ExceptionText}",
+                $"Código HTTP: {StatusCodeText}",
+                $"Mensaje: {Message}"
+            ]);
 
-        LineNumber = sample.LineNumber;
+    public LogSampleItemViewModel(
+        LogGroupSample model)
+    {
+        ArgumentNullException.ThrowIfNull(model);
+
+        Model = model;
 
         TimestampText =
-            sample.Timestamp?.ToString(
+            model.Timestamp?.ToString(
                 "yyyy-MM-dd HH:mm:ss.fff zzz",
                 CultureInfo.InvariantCulture)
             ?? "Sin fecha";
 
-        LevelText =
-            sample.Level.ToString();
-
-        Message =
-            sample.Message;
-
         ServiceText =
-            string.IsNullOrWhiteSpace(sample.Service)
+            string.IsNullOrWhiteSpace(
+                model.Service)
                 ? "Sin servicio"
-                : sample.Service;
+                : model.Service;
 
         ExceptionText =
             string.IsNullOrWhiteSpace(
-                sample.ExceptionType)
+                model.ExceptionType)
                 ? "Sin excepción"
-                : sample.ExceptionType;
+                : model.ExceptionType;
 
         StatusCodeText =
-            sample.StatusCode?.ToString(
+            model.StatusCode?.ToString(
                 CultureInfo.InvariantCulture)
             ?? "Sin código HTTP";
     }

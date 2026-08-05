@@ -17,8 +17,34 @@ public sealed class MainWindowViewModel
     private readonly IDesktopLogAnalysisService
         _analysisService;
 
+    private readonly IClipboardService
+        _clipboardService;
+
+    private readonly LogAnalysisExplorerService
+        _explorerService;
+
     private readonly StartupSummary
         _startupSummary;
+
+    private readonly IReadOnlyList<LogLevelFilterOption>
+        _levelFilters;
+
+    private readonly IReadOnlyList<PriorityFilterOption>
+        _priorityFilters;
+
+    private readonly IReadOnlyList<GroupSortOption>
+        _groupSortOptions;
+
+    private readonly IReadOnlyList<DiagnosisSortOption>
+        _diagnosisSortOptions;
+
+    private IReadOnlyList<LogGroupSummary>
+        _allGroups =
+            [];
+
+    private IReadOnlyList<IncidentDiagnosis>
+        _allDiagnoses =
+            [];
 
     private CancellationTokenSource?
         _analysisCancellation;
@@ -36,6 +62,15 @@ public sealed class MainWindowViewModel
 
     private string _statusDetail =
         "También puedes arrastrar un archivo hasta la ventana.";
+
+    private string _searchText =
+        string.Empty;
+
+    private string _filterSummaryText =
+        "Sin resultados cargados";
+
+    private string _copyStatusText =
+        string.Empty;
 
     private bool _isAnalyzing;
 
@@ -67,6 +102,12 @@ public sealed class MainWindowViewModel
     private string _diagnosisCountText =
         "0";
 
+    private string _visibleGroupCountText =
+        "0";
+
+    private string _visibleDiagnosisCountText =
+        "0";
+
     private string _immediateAttentionText =
         "0";
 
@@ -90,6 +131,21 @@ public sealed class MainWindowViewModel
     private DiagnosisItemViewModel?
         _selectedDiagnosis;
 
+    private LogSampleItemViewModel?
+        _selectedSample;
+
+    private LogLevelFilterOption
+        _selectedLevelFilter;
+
+    private PriorityFilterOption
+        _selectedPriorityFilter;
+
+    private GroupSortOption
+        _selectedGroupSort;
+
+    private DiagnosisSortOption
+        _selectedDiagnosisSort;
+
     public string WindowTitle =>
         $"{_startupSummary.Product.Name} " +
         $"{_startupSummary.Product.Version}";
@@ -104,12 +160,28 @@ public sealed class MainWindowViewModel
         _startupSummary.Product.Description;
 
     public string CurrentPhase =>
-        "Fase 7 · Interfaz de escritorio funcional";
+        "Fase 8 · Exploración, filtros y copia";
 
     public string RuntimeDescription =>
         $"{_startupSummary.Runtime.OperatingSystem} · " +
         $"{_startupSummary.Runtime.Architecture} · " +
         $"{_startupSummary.Runtime.Framework}";
+
+    public IReadOnlyList<LogLevelFilterOption>
+        LevelFilters =>
+            _levelFilters;
+
+    public IReadOnlyList<PriorityFilterOption>
+        PriorityFilters =>
+            _priorityFilters;
+
+    public IReadOnlyList<GroupSortOption>
+        GroupSortOptions =>
+            _groupSortOptions;
+
+    public IReadOnlyList<DiagnosisSortOption>
+        DiagnosisSortOptions =>
+            _diagnosisSortOptions;
 
     public string? SelectedFilePath
     {
@@ -170,6 +242,49 @@ public sealed class MainWindowViewModel
                 value);
     }
 
+    public string SearchText
+    {
+        get => _searchText;
+
+        set
+        {
+            if (
+                SetProperty(
+                    ref _searchText,
+                    value ?? string.Empty))
+            {
+                ApplyFilters();
+            }
+        }
+    }
+
+    public string FilterSummaryText
+    {
+        get => _filterSummaryText;
+
+        private set =>
+            SetProperty(
+                ref _filterSummaryText,
+                value);
+    }
+
+    public string CopyStatusText
+    {
+        get => _copyStatusText;
+
+        private set
+        {
+            if (
+                SetProperty(
+                    ref _copyStatusText,
+                    value))
+            {
+                RaisePropertyChanged(
+                    nameof(HasCopyStatus));
+            }
+        }
+    }
+
     public bool IsAnalyzing
     {
         get => _isAnalyzing;
@@ -226,7 +341,6 @@ public sealed class MainWindowViewModel
                     value))
             {
                 RaiseDisplayStateProperties();
-                RefreshCommands();
             }
         }
     }
@@ -243,7 +357,6 @@ public sealed class MainWindowViewModel
                     value))
             {
                 RaiseDisplayStateProperties();
-                RefreshCommands();
             }
         }
     }
@@ -318,6 +431,26 @@ public sealed class MainWindowViewModel
         private set =>
             SetProperty(
                 ref _diagnosisCountText,
+                value);
+    }
+
+    public string VisibleGroupCountText
+    {
+        get => _visibleGroupCountText;
+
+        private set =>
+            SetProperty(
+                ref _visibleGroupCountText,
+                value);
+    }
+
+    public string VisibleDiagnosisCountText
+    {
+        get => _visibleDiagnosisCountText;
+
+        private set =>
+            SetProperty(
+                ref _visibleDiagnosisCountText,
                 value);
     }
 
@@ -405,11 +538,16 @@ public sealed class MainWindowViewModel
                     ref _selectedGroup,
                     value))
             {
+                SelectedSample =
+                    value?.Samples.FirstOrDefault();
+
                 RaisePropertyChanged(
                     nameof(HasSelectedGroup));
 
                 RaisePropertyChanged(
                     nameof(HasNoSelectedGroup));
+
+                RefreshCommands();
             }
         }
     }
@@ -431,6 +569,100 @@ public sealed class MainWindowViewModel
 
                 RaisePropertyChanged(
                     nameof(HasNoSelectedDiagnosis));
+
+                RefreshCommands();
+            }
+        }
+    }
+
+    public LogSampleItemViewModel?
+        SelectedSample
+    {
+        get => _selectedSample;
+
+        set
+        {
+            if (
+                SetProperty(
+                    ref _selectedSample,
+                    value))
+            {
+                RaisePropertyChanged(
+                    nameof(HasSelectedSample));
+
+                RefreshCommands();
+            }
+        }
+    }
+
+    public LogLevelFilterOption
+        SelectedLevelFilter
+    {
+        get => _selectedLevelFilter;
+
+        set
+        {
+            if (
+                value is not null &&
+                SetProperty(
+                    ref _selectedLevelFilter,
+                    value))
+            {
+                ApplyFilters();
+            }
+        }
+    }
+
+    public PriorityFilterOption
+        SelectedPriorityFilter
+    {
+        get => _selectedPriorityFilter;
+
+        set
+        {
+            if (
+                value is not null &&
+                SetProperty(
+                    ref _selectedPriorityFilter,
+                    value))
+            {
+                ApplyFilters();
+            }
+        }
+    }
+
+    public GroupSortOption
+        SelectedGroupSort
+    {
+        get => _selectedGroupSort;
+
+        set
+        {
+            if (
+                value is not null &&
+                SetProperty(
+                    ref _selectedGroupSort,
+                    value))
+            {
+                ApplyFilters();
+            }
+        }
+    }
+
+    public DiagnosisSortOption
+        SelectedDiagnosisSort
+    {
+        get => _selectedDiagnosisSort;
+
+        set
+        {
+            if (
+                value is not null &&
+                SetProperty(
+                    ref _selectedDiagnosisSort,
+                    value))
+            {
+                ApplyFilters();
             }
         }
     }
@@ -462,6 +694,23 @@ public sealed class MainWindowViewModel
 
     public bool HasNoSelectedDiagnosis =>
         !HasSelectedDiagnosis;
+
+    public bool HasSelectedSample =>
+        SelectedSample is not null;
+
+    public bool HasCopyStatus =>
+        !string.IsNullOrWhiteSpace(
+            CopyStatusText);
+
+    public bool HasActiveFilters =>
+        !string.IsNullOrWhiteSpace(
+            SearchText) ||
+        SelectedLevelFilter.Value.HasValue ||
+        SelectedPriorityFilter.Value.HasValue ||
+        SelectedGroupSort.Value !=
+            LogGroupSortOrder.Severity ||
+        SelectedDiagnosisSort.Value !=
+            IncidentDiagnosisSortOrder.Priority;
 
     public bool ShowStartState =>
         !IsAnalyzing &&
@@ -496,9 +745,38 @@ public sealed class MainWindowViewModel
     public RelayCommand
         ClearCommand { get; }
 
+    public RelayCommand
+        ResetFiltersCommand { get; }
+
+    public AsyncRelayCommand
+        CopyGroupMessageCommand { get; }
+
+    public AsyncRelayCommand
+        CopyGroupFingerprintCommand { get; }
+
+    public AsyncRelayCommand
+        CopyGroupDetailsCommand { get; }
+
+    public AsyncRelayCommand
+        CopySampleCommand { get; }
+
+    public AsyncRelayCommand
+        CopyDiagnosisSummaryCommand { get; }
+
+    public AsyncRelayCommand
+        CopyDiagnosisFingerprintCommand { get; }
+
+    public AsyncRelayCommand
+        CopyDiagnosisActionsCommand { get; }
+
+    public AsyncRelayCommand
+        CopyDiagnosisDetailsCommand { get; }
+
     public MainWindowViewModel(
         ILogFilePickerService filePickerService,
-        IDesktopLogAnalysisService analysisService)
+        IDesktopLogAnalysisService analysisService,
+        IClipboardService clipboardService,
+        LogAnalysisExplorerService explorerService)
     {
         ArgumentNullException.ThrowIfNull(
             filePickerService);
@@ -506,11 +784,23 @@ public sealed class MainWindowViewModel
         ArgumentNullException.ThrowIfNull(
             analysisService);
 
+        ArgumentNullException.ThrowIfNull(
+            clipboardService);
+
+        ArgumentNullException.ThrowIfNull(
+            explorerService);
+
         _filePickerService =
             filePickerService;
 
         _analysisService =
             analysisService;
+
+        _clipboardService =
+            clipboardService;
+
+        _explorerService =
+            explorerService;
 
         StartupSummaryService startupService = new(
             new RuntimeEnvironmentProvider());
@@ -518,30 +808,205 @@ public sealed class MainWindowViewModel
         _startupSummary =
             startupService.Create();
 
-        SelectFileCommand = new AsyncRelayCommand(
-            SelectFileAsync,
-            () => !IsAnalyzing);
+        _levelFilters =
+        [
+            new(
+                "Todos los niveles",
+                null),
 
-        AnalyzeCommand = new AsyncRelayCommand(
-            AnalyzeSelectedFileAsync,
-            () =>
-                HasSelectedFile &&
-                !IsAnalyzing);
+            new(
+                "Critical",
+                LogLevel.Critical),
 
-        CancelCommand = new RelayCommand(
-            CancelAnalysis,
-            () => IsAnalyzing);
+            new(
+                "Error",
+                LogLevel.Error),
 
-        ClearCommand = new RelayCommand(
-            Clear,
-            () =>
-                !IsAnalyzing &&
-                (
-                    HasSelectedFile ||
-                    HasResults ||
-                    IsError ||
-                    IsEmptyResult
-                ));
+            new(
+                "Warning",
+                LogLevel.Warning),
+
+            new(
+                "Information",
+                LogLevel.Information),
+
+            new(
+                "Debug",
+                LogLevel.Debug),
+
+            new(
+                "Trace",
+                LogLevel.Trace),
+
+            new(
+                "Unknown",
+                LogLevel.Unknown)
+        ];
+
+        _priorityFilters =
+        [
+            new(
+                "Todas las prioridades",
+                null),
+
+            new(
+                "Crítica",
+                IncidentPriority.Critical),
+
+            new(
+                "Alta",
+                IncidentPriority.High),
+
+            new(
+                "Media",
+                IncidentPriority.Medium),
+
+            new(
+                "Baja",
+                IncidentPriority.Low),
+
+            new(
+                "Sin prioridad",
+                IncidentPriority.None)
+        ];
+
+        _groupSortOptions =
+        [
+            new(
+                "Gravedad",
+                LogGroupSortOrder.Severity),
+
+            new(
+                "Frecuencia",
+                LogGroupSortOrder.Frequency),
+
+            new(
+                "Más recientes",
+                LogGroupSortOrder.Newest),
+
+            new(
+                "Más antiguos",
+                LogGroupSortOrder.Oldest),
+
+            new(
+                "Mensaje",
+                LogGroupSortOrder.Message)
+        ];
+
+        _diagnosisSortOptions =
+        [
+            new(
+                "Prioridad",
+                IncidentDiagnosisSortOrder.Priority),
+
+            new(
+                "Confianza",
+                IncidentDiagnosisSortOrder.Confidence),
+
+            new(
+                "Más recientes",
+                IncidentDiagnosisSortOrder.Newest),
+
+            new(
+                "Título",
+                IncidentDiagnosisSortOrder.Title)
+        ];
+
+        _selectedLevelFilter =
+            _levelFilters[0];
+
+        _selectedPriorityFilter =
+            _priorityFilters[0];
+
+        _selectedGroupSort =
+            _groupSortOptions[0];
+
+        _selectedDiagnosisSort =
+            _diagnosisSortOptions[0];
+
+        SelectFileCommand =
+            new AsyncRelayCommand(
+                SelectFileAsync,
+                () => !IsAnalyzing);
+
+        AnalyzeCommand =
+            new AsyncRelayCommand(
+                AnalyzeSelectedFileAsync,
+                () =>
+                    HasSelectedFile &&
+                    !IsAnalyzing);
+
+        CancelCommand =
+            new RelayCommand(
+                CancelAnalysis,
+                () => IsAnalyzing);
+
+        ClearCommand =
+            new RelayCommand(
+                Clear,
+                () =>
+                    !IsAnalyzing &&
+                    (
+                        HasSelectedFile ||
+                        HasResults ||
+                        IsError ||
+                        IsEmptyResult
+                    ));
+
+        ResetFiltersCommand =
+            new RelayCommand(
+                ResetFilters,
+                () =>
+                    HasResults &&
+                    HasActiveFilters);
+
+        CopyGroupMessageCommand =
+            new AsyncRelayCommand(
+                CopyGroupMessageAsync,
+                () =>
+                    SelectedGroup is not null);
+
+        CopyGroupFingerprintCommand =
+            new AsyncRelayCommand(
+                CopyGroupFingerprintAsync,
+                () =>
+                    SelectedGroup is not null);
+
+        CopyGroupDetailsCommand =
+            new AsyncRelayCommand(
+                CopyGroupDetailsAsync,
+                () =>
+                    SelectedGroup is not null);
+
+        CopySampleCommand =
+            new AsyncRelayCommand(
+                CopySampleAsync,
+                () =>
+                    SelectedSample is not null);
+
+        CopyDiagnosisSummaryCommand =
+            new AsyncRelayCommand(
+                CopyDiagnosisSummaryAsync,
+                () =>
+                    SelectedDiagnosis is not null);
+
+        CopyDiagnosisFingerprintCommand =
+            new AsyncRelayCommand(
+                CopyDiagnosisFingerprintAsync,
+                () =>
+                    SelectedDiagnosis is not null);
+
+        CopyDiagnosisActionsCommand =
+            new AsyncRelayCommand(
+                CopyDiagnosisActionsAsync,
+                () =>
+                    SelectedDiagnosis is not null);
+
+        CopyDiagnosisDetailsCommand =
+            new AsyncRelayCommand(
+                CopyDiagnosisDetailsAsync,
+                () =>
+                    SelectedDiagnosis is not null);
     }
 
     public void SetDropActive(
@@ -579,7 +1044,9 @@ public sealed class MainWindowViewModel
                 await _filePickerService
                     .PickLogFileAsync();
 
-            if (string.IsNullOrWhiteSpace(filePath))
+            if (
+                string.IsNullOrWhiteSpace(
+                    filePath))
             {
                 return;
             }
@@ -617,8 +1084,8 @@ public sealed class MainWindowViewModel
             }
 
             if (
-                !SupportedLogFileExtensions.IsSupported(
-                    fullPath))
+                !SupportedLogFileExtensions
+                    .IsSupported(fullPath))
             {
                 throw new NotSupportedException(
                     "LogLens admite archivos .log, .txt, .jsonl y .ndjson.");
@@ -628,6 +1095,7 @@ public sealed class MainWindowViewModel
                 new(fullPath);
 
             ResetAnalysisOutput();
+            ResetFilters();
 
             SelectedFilePath =
                 fullPath;
@@ -666,7 +1134,9 @@ public sealed class MainWindowViewModel
         string? filePath =
             SelectedFilePath;
 
-        if (string.IsNullOrWhiteSpace(filePath))
+        if (
+            string.IsNullOrWhiteSpace(
+                filePath))
         {
             return;
         }
@@ -698,8 +1168,8 @@ public sealed class MainWindowViewModel
         ProgressBytesText =
             "Preparando lectura";
 
-        Progress<LogReadProgress> progress = new(
-            ReportProgress);
+        Progress<LogReadProgress> progress =
+            new(ReportProgress);
 
         try
         {
@@ -767,7 +1237,8 @@ public sealed class MainWindowViewModel
 
         ProgressBytesText =
             progress.TotalBytes == 0
-                ? FormatBytes(progress.BytesRead)
+                ? FormatBytes(
+                    progress.BytesRead)
                 : $"{FormatBytes(progress.BytesRead)} de " +
                   $"{FormatBytes(progress.TotalBytes)}";
 
@@ -782,38 +1253,11 @@ public sealed class MainWindowViewModel
     {
         ArgumentNullException.ThrowIfNull(result);
 
-        GroupItems =
-            result.Groups
-                .OrderByDescending(
-                    group =>
-                        GetLogLevelWeight(
-                            group.HighestLevel))
-                .ThenByDescending(
-                    group =>
-                        group.OccurrenceCount)
-                .ThenBy(
-                    group =>
-                        group.RepresentativeMessage,
-                    StringComparer.OrdinalIgnoreCase)
-                .Select(
-                    group =>
-                        new IncidentGroupItemViewModel(
-                            group))
-                .ToArray();
+        _allGroups =
+            result.Groups.ToArray();
 
-        DiagnosisItems =
-            result.Diagnoses
-                .Select(
-                    diagnosis =>
-                        new DiagnosisItemViewModel(
-                            diagnosis))
-                .ToArray();
-
-        SelectedGroup =
-            GroupItems.FirstOrDefault();
-
-        SelectedDiagnosis =
-            DiagnosisItems.FirstOrDefault();
+        _allDiagnoses =
+            result.Diagnoses.ToArray();
 
         TotalLinesText =
             result.TotalLines.ToString(
@@ -890,6 +1334,8 @@ public sealed class MainWindowViewModel
             return;
         }
 
+        ApplyFilters();
+
         StatusText =
             result.HasCriticalIncidents
                 ? "Análisis terminado con incidentes críticos"
@@ -898,6 +1344,272 @@ public sealed class MainWindowViewModel
         StatusDetail =
             $"{result.GroupCount:N0} grupos y " +
             $"{result.DiagnosisCount:N0} diagnósticos detectados.";
+    }
+
+    private void ApplyFilters()
+    {
+        string? selectedGroupFingerprint =
+            SelectedGroup?.Fingerprint;
+
+        string? selectedDiagnosisKey =
+            SelectedDiagnosis is null
+                ? null
+                : $"{SelectedDiagnosis.RuleId}|" +
+                  $"{SelectedDiagnosis.Fingerprint}";
+
+        IReadOnlyList<LogGroupSummary> filteredGroups =
+            _explorerService.QueryGroups(
+                _allGroups,
+                new LogGroupQueryOptions(
+                    SearchText,
+                    SelectedLevelFilter.Value,
+                    SelectedGroupSort.Value));
+
+        IReadOnlyList<IncidentDiagnosis>
+            filteredDiagnoses =
+                _explorerService.QueryDiagnoses(
+                    _allDiagnoses,
+                    new IncidentDiagnosisQueryOptions(
+                        SearchText,
+                        SelectedPriorityFilter.Value,
+                        SelectedDiagnosisSort.Value));
+
+        GroupItems =
+            filteredGroups
+                .Select(
+                    group =>
+                        new IncidentGroupItemViewModel(
+                            group))
+                .ToArray();
+
+        DiagnosisItems =
+            filteredDiagnoses
+                .Select(
+                    diagnosis =>
+                        new DiagnosisItemViewModel(
+                            diagnosis))
+                .ToArray();
+
+        SelectedGroup =
+            GroupItems.FirstOrDefault(
+                group =>
+                    string.Equals(
+                        group.Fingerprint,
+                        selectedGroupFingerprint,
+                        StringComparison.Ordinal))
+            ?? GroupItems.FirstOrDefault();
+
+        SelectedDiagnosis =
+            DiagnosisItems.FirstOrDefault(
+                diagnosis =>
+                    string.Equals(
+                        $"{diagnosis.RuleId}|" +
+                        $"{diagnosis.Fingerprint}",
+                        selectedDiagnosisKey,
+                        StringComparison.Ordinal))
+            ?? DiagnosisItems.FirstOrDefault();
+
+        VisibleGroupCountText =
+            GroupItems.Count.ToString(
+                "N0",
+                CultureInfo.InvariantCulture);
+
+        VisibleDiagnosisCountText =
+            DiagnosisItems.Count.ToString(
+                "N0",
+                CultureInfo.InvariantCulture);
+
+        FilterSummaryText =
+            $"{GroupItems.Count:N0} de " +
+            $"{_allGroups.Count:N0} grupos · " +
+            $"{DiagnosisItems.Count:N0} de " +
+            $"{_allDiagnoses.Count:N0} diagnósticos";
+
+        CopyStatusText =
+            string.Empty;
+
+        RaisePropertyChanged(
+            nameof(HasActiveFilters));
+
+        RefreshCommands();
+    }
+
+    private void ResetFilters()
+    {
+        _searchText =
+            string.Empty;
+
+        _selectedLevelFilter =
+            _levelFilters[0];
+
+        _selectedPriorityFilter =
+            _priorityFilters[0];
+
+        _selectedGroupSort =
+            _groupSortOptions[0];
+
+        _selectedDiagnosisSort =
+            _diagnosisSortOptions[0];
+
+        RaisePropertyChanged(
+            nameof(SearchText));
+
+        RaisePropertyChanged(
+            nameof(SelectedLevelFilter));
+
+        RaisePropertyChanged(
+            nameof(SelectedPriorityFilter));
+
+        RaisePropertyChanged(
+            nameof(SelectedGroupSort));
+
+        RaisePropertyChanged(
+            nameof(SelectedDiagnosisSort));
+
+        RaisePropertyChanged(
+            nameof(HasActiveFilters));
+
+        ApplyFilters();
+    }
+
+    private async Task CopyGroupMessageAsync()
+    {
+        IncidentGroupItemViewModel? group =
+            SelectedGroup;
+
+        if (group is null)
+        {
+            return;
+        }
+
+        await CopyTextAsync(
+            group.Message,
+            "Mensaje del incidente copiado.");
+    }
+
+    private async Task CopyGroupFingerprintAsync()
+    {
+        IncidentGroupItemViewModel? group =
+            SelectedGroup;
+
+        if (group is null)
+        {
+            return;
+        }
+
+        await CopyTextAsync(
+            group.Fingerprint,
+            "Huella del incidente copiada.");
+    }
+
+    private async Task CopyGroupDetailsAsync()
+    {
+        IncidentGroupItemViewModel? group =
+            SelectedGroup;
+
+        if (group is null)
+        {
+            return;
+        }
+
+        await CopyTextAsync(
+            group.CompleteText,
+            "Detalles del incidente copiados.");
+    }
+
+    private async Task CopySampleAsync()
+    {
+        LogSampleItemViewModel? sample =
+            SelectedSample;
+
+        if (sample is null)
+        {
+            return;
+        }
+
+        await CopyTextAsync(
+            sample.CompleteText,
+            "Muestra del log copiada.");
+    }
+
+    private async Task CopyDiagnosisSummaryAsync()
+    {
+        DiagnosisItemViewModel? diagnosis =
+            SelectedDiagnosis;
+
+        if (diagnosis is null)
+        {
+            return;
+        }
+
+        await CopyTextAsync(
+            diagnosis.Summary,
+            "Resumen del diagnóstico copiado.");
+    }
+
+    private async Task CopyDiagnosisFingerprintAsync()
+    {
+        DiagnosisItemViewModel? diagnosis =
+            SelectedDiagnosis;
+
+        if (diagnosis is null)
+        {
+            return;
+        }
+
+        await CopyTextAsync(
+            diagnosis.Fingerprint,
+            "Huella del diagnóstico copiada.");
+    }
+
+    private async Task CopyDiagnosisActionsAsync()
+    {
+        DiagnosisItemViewModel? diagnosis =
+            SelectedDiagnosis;
+
+        if (diagnosis is null)
+        {
+            return;
+        }
+
+        await CopyTextAsync(
+            diagnosis.ActionsText,
+            "Acciones recomendadas copiadas.");
+    }
+
+    private async Task CopyDiagnosisDetailsAsync()
+    {
+        DiagnosisItemViewModel? diagnosis =
+            SelectedDiagnosis;
+
+        if (diagnosis is null)
+        {
+            return;
+        }
+
+        await CopyTextAsync(
+            diagnosis.CompleteText,
+            "Diagnóstico completo copiado.");
+    }
+
+    private async Task CopyTextAsync(
+        string text,
+        string successMessage)
+    {
+        try
+        {
+            await _clipboardService.SetTextAsync(
+                text);
+
+            CopyStatusText =
+                successMessage;
+        }
+        catch (Exception exception)
+        {
+            CopyStatusText =
+                $"No se pudo copiar: " +
+                $"{exception.Message}";
+        }
     }
 
     private void CancelAnalysis()
@@ -929,6 +1641,7 @@ public sealed class MainWindowViewModel
             "Formatos: .log, .txt, .jsonl y .ndjson";
 
         ResetAnalysisOutput();
+        ResetFilters();
 
         IsError = false;
         IsEmptyResult = false;
@@ -944,15 +1657,25 @@ public sealed class MainWindowViewModel
 
     private void ResetAnalysisOutput()
     {
+        _allGroups = [];
+        _allDiagnoses = [];
+
         GroupItems = [];
         DiagnosisItems = [];
 
         SelectedGroup = null;
         SelectedDiagnosis = null;
+        SelectedSample = null;
 
         HasResults = false;
         IsError = false;
         IsEmptyResult = false;
+
+        CopyStatusText =
+            string.Empty;
+
+        FilterSummaryText =
+            "Sin resultados cargados";
 
         ProgressPercentage = 0;
 
@@ -966,6 +1689,8 @@ public sealed class MainWindowViewModel
         ParsedLinesText = "0";
         GroupCountText = "0";
         DiagnosisCountText = "0";
+        VisibleGroupCountText = "0";
+        VisibleDiagnosisCountText = "0";
         ImmediateAttentionText = "0";
         CriticalStatusText = "No";
 
@@ -1023,21 +1748,33 @@ public sealed class MainWindowViewModel
 
         ClearCommand
             .NotifyCanExecuteChanged();
-    }
 
-    private static int GetLogLevelWeight(
-        LogLevel level)
-    {
-        return level switch
-        {
-            LogLevel.Critical => 6,
-            LogLevel.Error => 5,
-            LogLevel.Warning => 4,
-            LogLevel.Information => 3,
-            LogLevel.Debug => 2,
-            LogLevel.Trace => 1,
-            _ => 0
-        };
+        ResetFiltersCommand
+            .NotifyCanExecuteChanged();
+
+        CopyGroupMessageCommand
+            .NotifyCanExecuteChanged();
+
+        CopyGroupFingerprintCommand
+            .NotifyCanExecuteChanged();
+
+        CopyGroupDetailsCommand
+            .NotifyCanExecuteChanged();
+
+        CopySampleCommand
+            .NotifyCanExecuteChanged();
+
+        CopyDiagnosisSummaryCommand
+            .NotifyCanExecuteChanged();
+
+        CopyDiagnosisFingerprintCommand
+            .NotifyCanExecuteChanged();
+
+        CopyDiagnosisActionsCommand
+            .NotifyCanExecuteChanged();
+
+        CopyDiagnosisDetailsCommand
+            .NotifyCanExecuteChanged();
     }
 
     private static string FormatBytes(
@@ -1053,7 +1790,9 @@ public sealed class MainWindowViewModel
         ];
 
         double size =
-            Math.Max(0, bytes);
+            Math.Max(
+                0,
+                bytes);
 
         int unitIndex = 0;
 

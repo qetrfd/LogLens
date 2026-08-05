@@ -38,10 +38,12 @@ public sealed class IncidentGroupItemViewModel
         Model.Fingerprint.NormalizedMessage;
 
     public string FirstSeenText =>
-        FormatTimestamp(Model.FirstSeen);
+        FormatTimestamp(
+            Model.FirstSeen);
 
     public string LastSeenText =>
-        FormatTimestamp(Model.LastSeen);
+        FormatTimestamp(
+            Model.LastSeen);
 
     public string ActivityWindowText =>
         CreateActivityWindowText(
@@ -71,6 +73,23 @@ public sealed class IncidentGroupItemViewModel
 
     public IReadOnlyList<LogSampleItemViewModel>
         Samples { get; }
+
+    public string CompleteText =>
+        string.Join(
+            Environment.NewLine,
+            [
+                $"Mensaje: {Message}",
+                $"Nivel: {LevelText}",
+                $"Apariciones: {Model.OccurrenceCount:N0}",
+                $"Primera aparición: {FirstSeenText}",
+                $"Última aparición: {LastSeenText}",
+                $"Ventana de actividad: {ActivityWindowText}",
+                $"Servicios: {ServicesText}",
+                $"Excepciones: {ExceptionsText}",
+                $"Códigos HTTP: {StatusCodesText}",
+                $"Mensaje normalizado: {NormalizedMessage}",
+                $"Huella: {Fingerprint}"
+            ]);
 
     public IncidentGroupItemViewModel(
         LogGroupSummary model)
@@ -131,7 +150,9 @@ public sealed class IncidentGroupItemViewModel
         }
 
         return
-            $"{Math.Max(0, duration.TotalSeconds):0.##} segundos";
+            $"{Math.Max(
+                0,
+                duration.TotalSeconds):0.##} segundos";
     }
 
     private static string Shorten(

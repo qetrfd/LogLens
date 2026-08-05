@@ -65,6 +65,45 @@ public sealed class DiagnosisItemViewModel
         RecommendedActions =>
             Model.RecommendedActions;
 
+    public string ActionsText =>
+        string.Join(
+            Environment.NewLine,
+            Model.RecommendedActions.Select(
+                (action, index) =>
+                    $"{index + 1}. {action}"));
+
+    public string CompleteText
+    {
+        get
+        {
+            string evidenceText =
+                string.Join(
+                    Environment.NewLine,
+                    Model.Evidence.Select(
+                        evidence =>
+                            $"- {evidence.Label}: " +
+                            $"{evidence.Value}"));
+
+            return string.Join(
+                Environment.NewLine,
+                [
+                    $"Título: {Title}",
+                    $"Regla: {RuleId}",
+                    $"Prioridad: {PriorityText}",
+                    $"Confianza: {ConfidenceText}",
+                    $"Detectado: {DetectedAtText}",
+                    $"Resumen: {Summary}",
+                    $"Huella: {Fingerprint}",
+                    string.Empty,
+                    "Evidencia:",
+                    evidenceText,
+                    string.Empty,
+                    "Acciones recomendadas:",
+                    ActionsText
+                ]);
+        }
+    }
+
     public DiagnosisItemViewModel(
         IncidentDiagnosis model)
     {

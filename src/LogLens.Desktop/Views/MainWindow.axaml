@@ -4,10 +4,10 @@
     x:Class="LogLens.Desktop.Views.MainWindow"
     x:CompileBindings="False"
     Title="{Binding WindowTitle}"
-    Width="1360"
-    Height="860"
-    MinWidth="1040"
-    MinHeight="680"
+    Width="1440"
+    Height="900"
+    MinWidth="1100"
+    MinHeight="720"
     Background="#080D18"
     DragDrop.AllowDrop="True">
 
@@ -29,9 +29,15 @@
         </Style>
 
         <Style Selector="Button">
-            <Setter Property="Padding" Value="16,10" />
-            <Setter Property="MinHeight" Value="40" />
+            <Setter Property="Padding" Value="15,9" />
+            <Setter Property="MinHeight" Value="38" />
             <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+
+        <Style Selector="Button.compact">
+            <Setter Property="Padding" Value="11,7" />
+            <Setter Property="MinHeight" Value="32" />
+            <Setter Property="FontSize" Value="12" />
         </Style>
 
         <Style Selector="Button.primary">
@@ -50,7 +56,7 @@
         </Style>
 
         <Style Selector="TextBlock.title">
-            <Setter Property="FontSize" Value="25" />
+            <Setter Property="FontSize" Value="24" />
             <Setter Property="FontWeight" Value="Bold" />
             <Setter Property="Foreground" Value="#F8FAFC" />
         </Style>
@@ -67,13 +73,27 @@
 
         <Style Selector="TextBlock.label">
             <Setter Property="Foreground" Value="#94A3B8" />
-            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontSize" Value="11" />
         </Style>
 
         <Style Selector="TextBlock.metric">
             <Setter Property="Foreground" Value="#F8FAFC" />
-            <Setter Property="FontSize" Value="24" />
+            <Setter Property="FontSize" Value="23" />
             <Setter Property="FontWeight" Value="Bold" />
+        </Style>
+
+        <Style Selector="TextBox.filter">
+            <Setter Property="MinHeight" Value="38" />
+            <Setter Property="Background" Value="#0D1422" />
+            <Setter Property="BorderBrush" Value="#334155" />
+            <Setter Property="Foreground" Value="#F8FAFC" />
+        </Style>
+
+        <Style Selector="ComboBox.filter">
+            <Setter Property="MinHeight" Value="38" />
+            <Setter Property="Background" Value="#0D1422" />
+            <Setter Property="BorderBrush" Value="#334155" />
+            <Setter Property="Foreground" Value="#F8FAFC" />
         </Style>
 
         <Style Selector="ListBox">
@@ -86,7 +106,7 @@
 
         <Style Selector="ListBoxItem">
             <Setter Property="Padding" Value="0" />
-            <Setter Property="Margin" Value="0,0,0,9" />
+            <Setter Property="Margin" Value="0,0,0,8" />
             <Setter
                 Property="HorizontalContentAlignment"
                 Value="Stretch" />
@@ -99,18 +119,18 @@
             Background="#0D1422"
             BorderBrush="#263247"
             BorderThickness="0,0,0,1"
-            Padding="24,18">
+            Padding="24,16">
 
             <Grid ColumnDefinitions="Auto,*,Auto">
                 <Border
-                    Width="48"
-                    Height="48"
+                    Width="46"
+                    Height="46"
                     CornerRadius="12"
                     Background="#2563EB">
 
                     <TextBlock
                         Text="L"
-                        FontSize="25"
+                        FontSize="24"
                         FontWeight="Bold"
                         Foreground="White"
                         HorizontalAlignment="Center"
@@ -182,25 +202,25 @@
 
         <Grid
             Grid.Row="1"
-            Margin="24,16,24,0">
+            Margin="24,14,24,0">
 
             <Border
                 Background="#111827"
                 BorderBrush="#334155"
                 BorderThickness="1"
                 CornerRadius="12"
-                Padding="18">
+                Padding="15">
 
                 <Grid ColumnDefinitions="Auto,*,Auto">
                     <Border
-                        Width="42"
-                        Height="42"
+                        Width="40"
+                        Height="40"
                         CornerRadius="10"
                         Background="#1E293B">
 
                         <TextBlock
                             Text="↥"
-                            FontSize="23"
+                            FontSize="22"
                             Foreground="#93C5FD"
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center" />
@@ -208,7 +228,7 @@
 
                     <StackPanel
                         Grid.Column="1"
-                        Margin="14,0"
+                        Margin="13,0"
                         VerticalAlignment="Center">
 
                         <TextBlock
@@ -264,7 +284,7 @@
 
         <Grid
             Grid.Row="2"
-            Margin="24,16">
+            Margin="24,14">
 
             <Border
                 Classes="card"
@@ -465,13 +485,13 @@
 
             <Grid
                 IsVisible="{Binding ShowResultsState}"
-                RowDefinitions="Auto,*"
-                RowSpacing="14">
+                RowDefinitions="Auto,Auto,*"
+                RowSpacing="12">
 
                 <Grid
                     Grid.Row="0"
                     ColumnDefinitions="*,*,*,*,*,*"
-                    ColumnSpacing="10">
+                    ColumnSpacing="9">
 
                     <Border Classes="card">
                         <StackPanel>
@@ -566,101 +586,210 @@
                     Classes="card"
                     Padding="14">
 
+                    <Grid
+                        RowDefinitions="Auto,Auto"
+                        RowSpacing="10">
+
+                        <Grid
+                            Grid.Row="0"
+                            ColumnDefinitions="2*,Auto,Auto,Auto,Auto,Auto"
+                            ColumnSpacing="10">
+
+                            <TextBox
+                                Grid.Column="0"
+                                Classes="filter"
+                                PlaceholderText="Buscar mensajes, servicios, excepciones, códigos, huellas o acciones..."
+                                Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                            <ComboBox
+                                Grid.Column="1"
+                                Classes="filter"
+                                Width="170"
+                                ItemsSource="{Binding LevelFilters}"
+                                SelectedItem="{Binding SelectedLevelFilter, Mode=TwoWay}">
+
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Label}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+
+                            <ComboBox
+                                Grid.Column="2"
+                                Classes="filter"
+                                Width="175"
+                                ItemsSource="{Binding PriorityFilters}"
+                                SelectedItem="{Binding SelectedPriorityFilter, Mode=TwoWay}">
+
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Label}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+
+                            <ComboBox
+                                Grid.Column="3"
+                                Classes="filter"
+                                Width="150"
+                                ItemsSource="{Binding GroupSortOptions}"
+                                SelectedItem="{Binding SelectedGroupSort, Mode=TwoWay}">
+
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock
+                                            Text="{Binding Label, StringFormat='Grupos: {0}'}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+
+                            <ComboBox
+                                Grid.Column="4"
+                                Classes="filter"
+                                Width="165"
+                                ItemsSource="{Binding DiagnosisSortOptions}"
+                                SelectedItem="{Binding SelectedDiagnosisSort, Mode=TwoWay}">
+
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock
+                                            Text="{Binding Label, StringFormat='Diagnósticos: {0}'}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+
+                            <Button
+                                Grid.Column="5"
+                                Classes="secondary compact"
+                                Content="Restablecer"
+                                Command="{Binding ResetFiltersCommand}" />
+                        </Grid>
+
+                        <Grid
+                            Grid.Row="1"
+                            ColumnDefinitions="*,Auto"
+                            IsVisible="{Binding HasResults}">
+
+                            <TextBlock
+                                Text="{Binding FilterSummaryText}"
+                                Classes="muted" />
+
+                            <TextBlock
+                                Grid.Column="1"
+                                Text="{Binding CopyStatusText}"
+                                Foreground="#86EFAC"
+                                IsVisible="{Binding HasCopyStatus}" />
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <Border
+                    Grid.Row="2"
+                    Classes="card"
+                    Padding="14">
+
                     <TabControl>
                         <TabItem Header="Incidentes agrupados">
                             <Grid
-                                Margin="0,12,0,0"
-                                ColumnDefinitions="410,6,*">
+                                Margin="0,10,0,0"
+                                ColumnDefinitions="400,6,*">
 
                                 <Grid
                                     Grid.Column="0"
                                     RowDefinitions="Auto,*"
-                                    RowSpacing="10">
+                                    RowSpacing="9">
 
                                     <Grid ColumnDefinitions="*,Auto">
                                         <TextBlock
                                             Classes="section-title"
-                                            Text="Incidentes" />
+                                            Text="Incidentes visibles" />
 
                                         <TextBlock
                                             Grid.Column="1"
                                             Classes="muted"
-                                            Text="{Binding GroupCountText}" />
+                                            Text="{Binding VisibleGroupCountText}" />
                                     </Grid>
 
-                                    <ListBox
-                                        Grid.Row="1"
-                                        ItemsSource="{Binding GroupItems}"
-                                        SelectedItem="{Binding SelectedGroup, Mode=TwoWay}">
+                                    <Grid Grid.Row="1">
+                                        <ListBox
+                                            ItemsSource="{Binding GroupItems}"
+                                            SelectedItem="{Binding SelectedGroup, Mode=TwoWay}">
 
-                                        <ListBox.ItemTemplate>
-                                            <DataTemplate>
-                                                <Border Classes="list-card">
-                                                    <Grid
-                                                        RowDefinitions="Auto,Auto,Auto"
-                                                        RowSpacing="7">
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border Classes="list-card">
+                                                        <Grid
+                                                            RowDefinitions="Auto,Auto,Auto"
+                                                            RowSpacing="7">
 
-                                                        <Grid ColumnDefinitions="*,Auto">
-                                                            <TextBlock
-                                                                Text="{Binding Message}"
-                                                                Foreground="#F8FAFC"
-                                                                FontWeight="SemiBold"
-                                                                TextWrapping="Wrap"
-                                                                MaxLines="2" />
+                                                            <Grid ColumnDefinitions="*,Auto">
+                                                                <TextBlock
+                                                                    Text="{Binding Message}"
+                                                                    Foreground="#F8FAFC"
+                                                                    FontWeight="SemiBold"
+                                                                    TextWrapping="Wrap"
+                                                                    MaxLines="2" />
 
-                                                            <Border
-                                                                Grid.Column="1"
-                                                                Background="{Binding Level, Converter={StaticResource LogLevelBrushConverter}}"
-                                                                CornerRadius="7"
-                                                                Padding="8,3"
-                                                                Margin="10,0,0,0">
+                                                                <Border
+                                                                    Grid.Column="1"
+                                                                    Background="{Binding Level, Converter={StaticResource LogLevelBrushConverter}}"
+                                                                    CornerRadius="7"
+                                                                    Padding="8,3"
+                                                                    Margin="10,0,0,0">
+
+                                                                    <TextBlock
+                                                                        Text="{Binding LevelText}"
+                                                                        Foreground="White"
+                                                                        FontSize="11"
+                                                                        FontWeight="Bold" />
+                                                                </Border>
+                                                            </Grid>
+
+                                                            <Grid
+                                                                Grid.Row="1"
+                                                                ColumnDefinitions="*,Auto">
 
                                                                 <TextBlock
-                                                                    Text="{Binding LevelText}"
-                                                                    Foreground="White"
-                                                                    FontSize="11"
-                                                                    FontWeight="Bold" />
-                                                            </Border>
-                                                        </Grid>
+                                                                    Text="{Binding OccurrenceText}"
+                                                                    Foreground="#93C5FD"
+                                                                    FontWeight="SemiBold" />
 
-                                                        <Grid
-                                                            Grid.Row="1"
-                                                            ColumnDefinitions="*,Auto">
-
-                                                            <TextBlock
-                                                                Text="{Binding OccurrenceText}"
-                                                                Foreground="#93C5FD"
-                                                                FontWeight="SemiBold" />
+                                                                <TextBlock
+                                                                    Grid.Column="1"
+                                                                    Text="{Binding RecurrenceText}"
+                                                                    Classes="muted"
+                                                                    FontSize="12" />
+                                                            </Grid>
 
                                                             <TextBlock
-                                                                Grid.Column="1"
-                                                                Text="{Binding RecurrenceText}"
+                                                                Grid.Row="2"
+                                                                Text="{Binding ShortFingerprint}"
                                                                 Classes="muted"
-                                                                FontSize="12" />
+                                                                FontFamily="Menlo,Consolas,monospace"
+                                                                FontSize="11" />
                                                         </Grid>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+                                        </ListBox>
 
-                                                        <TextBlock
-                                                            Grid.Row="2"
-                                                            Text="{Binding ShortFingerprint}"
-                                                            Classes="muted"
-                                                            FontFamily="Menlo,Consolas,monospace"
-                                                            FontSize="11" />
-                                                    </Grid>
-                                                </Border>
-                                            </DataTemplate>
-                                        </ListBox.ItemTemplate>
-                                    </ListBox>
+                                        <StackPanel
+                                            IsVisible="{Binding HasNoGroups}"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Spacing="5">
 
-                                    <StackPanel
-                                        Grid.Row="1"
-                                        IsVisible="{Binding HasNoGroups}"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center">
+                                            <TextBlock
+                                                Text="No hay incidentes que coincidan."
+                                                Foreground="#F8FAFC"
+                                                FontWeight="SemiBold" />
 
-                                        <TextBlock
-                                            Text="No se detectaron grupos."
-                                            Classes="muted" />
-                                    </StackPanel>
+                                            <TextBlock
+                                                Text="Modifica la búsqueda o los filtros."
+                                                Classes="muted" />
+                                        </StackPanel>
+                                    </Grid>
                                 </Grid>
 
                                 <GridSplitter
@@ -695,7 +824,7 @@
                                         <ScrollViewer
                                             IsVisible="{Binding HasSelectedGroup}">
 
-                                            <StackPanel Spacing="16">
+                                            <StackPanel Spacing="15">
                                                 <Grid ColumnDefinitions="*,Auto">
                                                     <StackPanel>
                                                         <TextBlock
@@ -723,6 +852,26 @@
                                                             FontWeight="Bold" />
                                                     </Border>
                                                 </Grid>
+
+                                                <StackPanel
+                                                    Orientation="Horizontal"
+                                                    Spacing="8">
+
+                                                    <Button
+                                                        Classes="secondary compact"
+                                                        Content="Copiar mensaje"
+                                                        Command="{Binding CopyGroupMessageCommand}" />
+
+                                                    <Button
+                                                        Classes="secondary compact"
+                                                        Content="Copiar huella"
+                                                        Command="{Binding CopyGroupFingerprintCommand}" />
+
+                                                    <Button
+                                                        Classes="primary compact"
+                                                        Content="Copiar detalles"
+                                                        Command="{Binding CopyGroupDetailsCommand}" />
+                                                </StackPanel>
 
                                                 <Border Classes="list-card">
                                                     <Grid
@@ -812,9 +961,9 @@
 
                                                     <Border
                                                         Classes="list-card"
-                                                        Margin="0,8,0,0">
+                                                        Margin="0,7,0,0">
 
-                                                        <TextBlock
+                                                        <SelectableTextBlock
                                                             Text="{Binding SelectedGroup.NormalizedMessage}"
                                                             Foreground="#CBD5E1"
                                                             FontFamily="Menlo,Consolas,monospace"
@@ -829,9 +978,9 @@
 
                                                     <Border
                                                         Classes="list-card"
-                                                        Margin="0,8,0,0">
+                                                        Margin="0,7,0,0">
 
-                                                        <TextBlock
+                                                        <SelectableTextBlock
                                                             Text="{Binding SelectedGroup.Fingerprint}"
                                                             Foreground="#93C5FD"
                                                             FontFamily="Menlo,Consolas,monospace"
@@ -839,56 +988,76 @@
                                                     </Border>
                                                 </StackPanel>
 
-                                                <StackPanel>
+                                                <Grid ColumnDefinitions="*,Auto">
                                                     <TextBlock
                                                         Classes="section-title"
                                                         Text="Muestras del incidente" />
 
-                                                    <ItemsControl
-                                                        Margin="0,8,0,0"
-                                                        ItemsSource="{Binding SelectedGroup.Samples}">
+                                                    <Button
+                                                        Grid.Column="1"
+                                                        Classes="secondary compact"
+                                                        Content="Copiar muestra"
+                                                        Command="{Binding CopySampleCommand}" />
+                                                </Grid>
 
-                                                        <ItemsControl.ItemTemplate>
-                                                            <DataTemplate>
-                                                                <Border
-                                                                    Classes="list-card"
-                                                                    Margin="0,0,0,9">
+                                                <ListBox
+                                                    MaxHeight="280"
+                                                    ItemsSource="{Binding SelectedGroup.Samples}"
+                                                    SelectedItem="{Binding SelectedSample, Mode=TwoWay}">
 
-                                                                    <StackPanel Spacing="7">
-                                                                        <Grid ColumnDefinitions="Auto,*,Auto">
-                                                                            <TextBlock
-                                                                                Text="{Binding LineNumber, StringFormat='Línea {0}'}"
-                                                                                Foreground="#93C5FD"
-                                                                                FontWeight="SemiBold" />
-
-                                                                            <TextBlock
-                                                                                Grid.Column="1"
-                                                                                Text="{Binding TimestampText}"
-                                                                                Classes="muted"
-                                                                                Margin="12,0"
-                                                                                TextTrimming="CharacterEllipsis" />
-
-                                                                            <TextBlock
-                                                                                Grid.Column="2"
-                                                                                Text="{Binding LevelText}"
-                                                                                Foreground="#F8FAFC" />
-                                                                        </Grid>
+                                                    <ListBox.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Border Classes="list-card">
+                                                                <StackPanel Spacing="7">
+                                                                    <Grid ColumnDefinitions="Auto,*,Auto">
+                                                                        <TextBlock
+                                                                            Text="{Binding LineNumber, StringFormat='Línea {0}'}"
+                                                                            Foreground="#93C5FD"
+                                                                            FontWeight="SemiBold" />
 
                                                                         <TextBlock
-                                                                            Text="{Binding Message}"
-                                                                            Foreground="#F8FAFC"
-                                                                            FontFamily="Menlo,Consolas,monospace"
-                                                                            TextWrapping="Wrap" />
-
-                                                                        <TextBlock
+                                                                            Grid.Column="1"
+                                                                            Text="{Binding TimestampText}"
                                                                             Classes="muted"
-                                                                            Text="{Binding ServiceText}" />
-                                                                    </StackPanel>
-                                                                </Border>
-                                                            </DataTemplate>
-                                                        </ItemsControl.ItemTemplate>
-                                                    </ItemsControl>
-                                                </StackPanel>
+                                                                            Margin="12,0"
+                                                                            TextTrimming="CharacterEllipsis" />
+
+                                                                        <TextBlock
+                                                                            Grid.Column="2"
+                                                                            Text="{Binding LevelText}"
+                                                                            Foreground="#F8FAFC" />
+                                                                    </Grid>
+
+                                                                    <TextBlock
+                                                                        Text="{Binding Message}"
+                                                                        Foreground="#F8FAFC"
+                                                                        FontFamily="Menlo,Consolas,monospace"
+                                                                        TextWrapping="Wrap" />
+
+                                                                    <Grid
+                                                                        ColumnDefinitions="*,*,*"
+                                                                        ColumnSpacing="10">
+
+                                                                        <TextBlock
+                                                                            Text="{Binding ServiceText}"
+                                                                            Classes="muted" />
+
+                                                                        <TextBlock
+                                                                            Grid.Column="1"
+                                                                            Text="{Binding ExceptionText}"
+                                                                            Classes="muted" />
+
+                                                                        <TextBlock
+                                                                            Grid.Column="2"
+                                                                            Text="{Binding StatusCodeText}"
+                                                                            Classes="muted"
+                                                                            TextAlignment="Right" />
+                                                                    </Grid>
+                                                                </StackPanel>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ListBox.ItemTemplate>
+                                                </ListBox>
                                             </StackPanel>
                                         </ScrollViewer>
                                     </Grid>
@@ -898,98 +1067,104 @@
 
                         <TabItem Header="Diagnósticos">
                             <Grid
-                                Margin="0,12,0,0"
-                                ColumnDefinitions="410,6,*">
+                                Margin="0,10,0,0"
+                                ColumnDefinitions="400,6,*">
 
                                 <Grid
                                     Grid.Column="0"
                                     RowDefinitions="Auto,*"
-                                    RowSpacing="10">
+                                    RowSpacing="9">
 
                                     <Grid ColumnDefinitions="*,Auto">
                                         <TextBlock
                                             Classes="section-title"
-                                            Text="Diagnósticos" />
+                                            Text="Diagnósticos visibles" />
 
                                         <TextBlock
                                             Grid.Column="1"
                                             Classes="muted"
-                                            Text="{Binding DiagnosisCountText}" />
+                                            Text="{Binding VisibleDiagnosisCountText}" />
                                     </Grid>
 
-                                    <ListBox
-                                        Grid.Row="1"
-                                        ItemsSource="{Binding DiagnosisItems}"
-                                        SelectedItem="{Binding SelectedDiagnosis, Mode=TwoWay}">
+                                    <Grid Grid.Row="1">
+                                        <ListBox
+                                            ItemsSource="{Binding DiagnosisItems}"
+                                            SelectedItem="{Binding SelectedDiagnosis, Mode=TwoWay}">
 
-                                        <ListBox.ItemTemplate>
-                                            <DataTemplate>
-                                                <Border Classes="list-card">
-                                                    <Grid
-                                                        RowDefinitions="Auto,Auto,Auto"
-                                                        RowSpacing="7">
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border Classes="list-card">
+                                                        <Grid
+                                                            RowDefinitions="Auto,Auto,Auto"
+                                                            RowSpacing="7">
 
-                                                        <Grid ColumnDefinitions="*,Auto">
+                                                            <Grid ColumnDefinitions="*,Auto">
+                                                                <TextBlock
+                                                                    Text="{Binding Title}"
+                                                                    Foreground="#F8FAFC"
+                                                                    FontWeight="SemiBold"
+                                                                    TextWrapping="Wrap" />
+
+                                                                <Border
+                                                                    Grid.Column="1"
+                                                                    Background="{Binding Priority, Converter={StaticResource IncidentPriorityBrushConverter}}"
+                                                                    CornerRadius="7"
+                                                                    Padding="8,3"
+                                                                    Margin="10,0,0,0">
+
+                                                                    <TextBlock
+                                                                        Text="{Binding PriorityText}"
+                                                                        Foreground="White"
+                                                                        FontWeight="Bold"
+                                                                        FontSize="11" />
+                                                                </Border>
+                                                            </Grid>
+
                                                             <TextBlock
-                                                                Text="{Binding Title}"
-                                                                Foreground="#F8FAFC"
-                                                                FontWeight="SemiBold"
-                                                                TextWrapping="Wrap" />
+                                                                Grid.Row="1"
+                                                                Text="{Binding Summary}"
+                                                                Classes="muted"
+                                                                TextWrapping="Wrap"
+                                                                MaxLines="3" />
 
-                                                            <Border
-                                                                Grid.Column="1"
-                                                                Background="{Binding Priority, Converter={StaticResource IncidentPriorityBrushConverter}}"
-                                                                CornerRadius="7"
-                                                                Padding="8,3"
-                                                                Margin="10,0,0,0">
+                                                            <Grid
+                                                                Grid.Row="2"
+                                                                ColumnDefinitions="*,Auto">
 
                                                                 <TextBlock
-                                                                    Text="{Binding PriorityText}"
-                                                                    Foreground="White"
-                                                                    FontWeight="Bold"
+                                                                    Text="{Binding RuleId}"
+                                                                    Foreground="#93C5FD"
+                                                                    FontFamily="Menlo,Consolas,monospace"
                                                                     FontSize="11" />
-                                                            </Border>
+
+                                                                <TextBlock
+                                                                    Grid.Column="1"
+                                                                    Text="{Binding ConfidenceText}"
+                                                                    Foreground="#F8FAFC"
+                                                                    FontWeight="SemiBold" />
+                                                            </Grid>
                                                         </Grid>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+                                        </ListBox>
 
-                                                        <TextBlock
-                                                            Grid.Row="1"
-                                                            Text="{Binding Summary}"
-                                                            Classes="muted"
-                                                            TextWrapping="Wrap"
-                                                            MaxLines="3" />
+                                        <StackPanel
+                                            IsVisible="{Binding HasNoDiagnoses}"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Spacing="5">
 
-                                                        <Grid
-                                                            Grid.Row="2"
-                                                            ColumnDefinitions="*,Auto">
+                                            <TextBlock
+                                                Text="No hay diagnósticos que coincidan."
+                                                Foreground="#F8FAFC"
+                                                FontWeight="SemiBold" />
 
-                                                            <TextBlock
-                                                                Text="{Binding RuleId}"
-                                                                Foreground="#93C5FD"
-                                                                FontFamily="Menlo,Consolas,monospace"
-                                                                FontSize="11" />
-
-                                                            <TextBlock
-                                                                Grid.Column="1"
-                                                                Text="{Binding ConfidenceText}"
-                                                                Foreground="#F8FAFC"
-                                                                FontWeight="SemiBold" />
-                                                        </Grid>
-                                                    </Grid>
-                                                </Border>
-                                            </DataTemplate>
-                                        </ListBox.ItemTemplate>
-                                    </ListBox>
-
-                                    <StackPanel
-                                        Grid.Row="1"
-                                        IsVisible="{Binding HasNoDiagnoses}"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center">
-
-                                        <TextBlock
-                                            Text="No se generaron diagnósticos."
-                                            Classes="muted" />
-                                    </StackPanel>
+                                            <TextBlock
+                                                Text="Modifica la búsqueda o los filtros."
+                                                Classes="muted" />
+                                        </StackPanel>
+                                    </Grid>
                                 </Grid>
 
                                 <GridSplitter
@@ -1025,7 +1200,7 @@
                                         <ScrollViewer
                                             IsVisible="{Binding HasSelectedDiagnosis}">
 
-                                            <StackPanel Spacing="17">
+                                            <StackPanel Spacing="15">
                                                 <Grid ColumnDefinitions="*,Auto">
                                                     <StackPanel>
                                                         <TextBlock
@@ -1055,13 +1230,38 @@
                                                     </Border>
                                                 </Grid>
 
+                                                <StackPanel
+                                                    Orientation="Horizontal"
+                                                    Spacing="8">
+
+                                                    <Button
+                                                        Classes="secondary compact"
+                                                        Content="Copiar resumen"
+                                                        Command="{Binding CopyDiagnosisSummaryCommand}" />
+
+                                                    <Button
+                                                        Classes="secondary compact"
+                                                        Content="Copiar huella"
+                                                        Command="{Binding CopyDiagnosisFingerprintCommand}" />
+
+                                                    <Button
+                                                        Classes="secondary compact"
+                                                        Content="Copiar acciones"
+                                                        Command="{Binding CopyDiagnosisActionsCommand}" />
+
+                                                    <Button
+                                                        Classes="primary compact"
+                                                        Content="Copiar diagnóstico"
+                                                        Command="{Binding CopyDiagnosisDetailsCommand}" />
+                                                </StackPanel>
+
                                                 <Border Classes="list-card">
                                                     <StackPanel Spacing="7">
                                                         <TextBlock
                                                             Classes="label"
                                                             Text="RESUMEN" />
 
-                                                        <TextBlock
+                                                        <SelectableTextBlock
                                                             Text="{Binding SelectedDiagnosis.Summary}"
                                                             Foreground="#F8FAFC"
                                                             TextWrapping="Wrap"
@@ -1127,7 +1327,7 @@
                                                         Text="Evidencia" />
 
                                                     <ItemsControl
-                                                        Margin="0,8,0,0"
+                                                        Margin="0,7,0,0"
                                                         ItemsSource="{Binding SelectedDiagnosis.Evidence}">
 
                                                         <ItemsControl.ItemTemplate>
@@ -1142,7 +1342,7 @@
                                                                             Foreground="#93C5FD"
                                                                             FontWeight="SemiBold" />
 
-                                                                        <TextBlock
+                                                                        <SelectableTextBlock
                                                                             Grid.Column="1"
                                                                             Text="{Binding Value}"
                                                                             Foreground="#F8FAFC"
@@ -1160,7 +1360,7 @@
                                                         Text="Acciones recomendadas" />
 
                                                     <ItemsControl
-                                                        Margin="0,8,0,0"
+                                                        Margin="0,7,0,0"
                                                         ItemsSource="{Binding SelectedDiagnosis.RecommendedActions}">
 
                                                         <ItemsControl.ItemTemplate>
@@ -1183,7 +1383,7 @@
                                                                                 VerticalAlignment="Center" />
                                                                         </Border>
 
-                                                                        <TextBlock
+                                                                        <SelectableTextBlock
                                                                             Grid.Column="1"
                                                                             Margin="11,1,0,0"
                                                                             Text="{Binding}"
@@ -1203,9 +1403,9 @@
 
                                                     <Border
                                                         Classes="list-card"
-                                                        Margin="0,8,0,0">
+                                                        Margin="0,7,0,0">
 
-                                                        <TextBlock
+                                                        <SelectableTextBlock
                                                             Text="{Binding SelectedDiagnosis.Fingerprint}"
                                                             Foreground="#93C5FD"
                                                             FontFamily="Menlo,Consolas,monospace"
@@ -1228,7 +1428,7 @@
             Background="#0D1422"
             BorderBrush="#263247"
             BorderThickness="0,1,0,0"
-            Padding="24,10">
+            Padding="24,9">
 
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock

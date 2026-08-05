@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Platform.Storage;
+using LogLens.Application;
 using LogLens.Core;
 using LogLens.Desktop.Services;
 using LogLens.Desktop.ViewModels;
@@ -20,14 +21,24 @@ public sealed partial class MainWindow
         AvaloniaLogFilePickerService filePickerService =
             new(() => this);
 
+        AvaloniaClipboardService clipboardService =
+            new(() => this);
+
         DesktopLogAnalysisService analysisService =
             new();
 
-        _viewModel = new MainWindowViewModel(
-            filePickerService,
-            analysisService);
+        LogAnalysisExplorerService explorerService =
+            new();
 
-        DataContext = _viewModel;
+        _viewModel =
+            new MainWindowViewModel(
+                filePickerService,
+                analysisService,
+                clipboardService,
+                explorerService);
+
+        DataContext =
+            _viewModel;
 
         DragDrop.AddDragEnterHandler(
             this,
@@ -45,7 +56,8 @@ public sealed partial class MainWindow
             this,
             OnDrop);
 
-        Closed += OnWindowClosed;
+        Closed +=
+            OnWindowClosed;
     }
 
     private void OnDragEnter(
@@ -53,7 +65,8 @@ public sealed partial class MainWindow
         DragEventArgs eventArgs)
     {
         bool isSupported =
-            GetSupportedFilePath(eventArgs)
+            GetSupportedFilePath(
+                eventArgs)
             is not null;
 
         eventArgs.DragEffects =
@@ -72,7 +85,8 @@ public sealed partial class MainWindow
         DragEventArgs eventArgs)
     {
         bool isSupported =
-            GetSupportedFilePath(eventArgs)
+            GetSupportedFilePath(
+                eventArgs)
             is not null;
 
         eventArgs.DragEffects =
@@ -100,7 +114,8 @@ public sealed partial class MainWindow
         DragEventArgs eventArgs)
     {
         string? filePath =
-            GetSupportedFilePath(eventArgs);
+            GetSupportedFilePath(
+                eventArgs);
 
         eventArgs.DragEffects =
             filePath is null
@@ -124,7 +139,8 @@ public sealed partial class MainWindow
         DragEventArgs eventArgs)
     {
         IReadOnlyList<IStorageItem>? files =
-            eventArgs.DataTransfer.TryGetFiles();
+            eventArgs.DataTransfer
+                .TryGetFiles();
 
         if (
             files is null ||
