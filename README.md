@@ -2,11 +2,11 @@
 
 Local log analysis and incident diagnostics for developers.
 
-LogLens es una aplicación multiplataforma para leer, procesar, estructurar y agrupar archivos de logs sin cargar todo el archivo en memoria.
+LogLens es una aplicación multiplataforma para leer, procesar, estructurar, agrupar y diagnosticar archivos de logs localmente.
 
 ## Estado
 
-Versión actual: 0.5.0
+Versión actual: 0.6.0
 
 La solución incluye:
 
@@ -28,6 +28,15 @@ La solución incluye:
 - Conteo de apariciones
 - Primera y última aparición
 - Muestras representativas
+- Diagnóstico local mediante reglas
+- Priorización de incidentes
+- Evidencia de diagnóstico
+- Acciones recomendadas
+- Detección de niveles críticos
+- Detección de fallos recurrentes
+- Detección de errores HTTP
+- Detección de latencia elevada
+- Detección de fallos de conexión
 - CLI
 - Aplicación de escritorio con Avalonia
 - Pruebas automatizadas
@@ -64,7 +73,7 @@ dotnet run \
 ```bash
 dotnet run \
   --project src/LogLens.Cli/LogLens.Cli.csproj \
-  -- read application.log
+  -- read application.log --preview 20
 ```
 
 ## Procesar un archivo
@@ -80,31 +89,61 @@ dotnet run \
 ```bash
 dotnet run \
   --project src/LogLens.Cli/LogLens.Cli.csproj \
-  -- group application.log
+  -- group application.log \
+  --samples 3 \
+  --top 10
 ```
 
-## Configurar muestras por grupo
+## Diagnosticar incidentes
 
 ```bash
 dotnet run \
   --project src/LogLens.Cli/LogLens.Cli.csproj \
-  -- group application.log --samples 5
+  -- diagnose application.log
 ```
 
-## Limitar grupos mostrados
+## Configurar muestras
 
 ```bash
 dotnet run \
   --project src/LogLens.Cli/LogLens.Cli.csproj \
-  -- group application.log --top 10
+  -- diagnose application.log \
+  --samples 5
 ```
+
+## Limitar diagnósticos
+
+```bash
+dotnet run \
+  --project src/LogLens.Cli/LogLens.Cli.csproj \
+  -- diagnose application.log \
+  --top 10
+```
+
+## Filtrar por prioridad
+
+```bash
+dotnet run \
+  --project src/LogLens.Cli/LogLens.Cli.csproj \
+  -- diagnose application.log \
+  --min-priority high
+```
+
+Prioridades disponibles:
+
+- `none`
+- `low`
+- `medium`
+- `high`
+- `critical`
 
 ## Excluir entradas sin nivel
 
 ```bash
 dotnet run \
   --project src/LogLens.Cli/LogLens.Cli.csproj \
-  -- group application.log --exclude-unknown
+  -- diagnose application.log \
+  --exclude-unknown
 ```
 
 ## Combinar opciones
@@ -112,10 +151,11 @@ dotnet run \
 ```bash
 dotnet run \
   --project src/LogLens.Cli/LogLens.Cli.csproj \
-  -- group application.log \
+  -- diagnose application.log \
   --samples 3 \
   --top 10 \
-  --exclude-unknown
+  --exclude-unknown \
+  --min-priority medium
 ```
 
 ## Ejecutar la aplicación de escritorio
@@ -125,20 +165,29 @@ dotnet run \
   --project src/LogLens.Desktop/LogLens.Desktop.csproj
 ```
 
-## Normalización
+## Reglas de diagnóstico
 
-LogLens normaliza valores dinámicos como:
+LogLens incluye reglas locales para detectar:
 
-- Fechas y horas
-- Direcciones IP
-- Puertos
-- GUID
-- Request ID
-- Correlation ID
-- Trace ID
-- Span ID
-- URLs
-- Valores hexadecimales
-- Valores numéricos
+- Incidentes con nivel crítico
+- Fallos recurrentes
+- Respuestas HTTP 4xx
+- Respuestas HTTP 5xx
+- Límites de solicitudes HTTP 429
+- Latencia elevada
+- Tiempos de espera
+- Fallos de conexión
+- Errores de red
+- Excepciones de socket
 
-Esto permite agrupar mensajes equivalentes aunque cambien sus identificadores, tiempos, direcciones o cantidades.
+## Códigos de salida de la CLI
+
+- `0`: operación completada
+- `1`: error de argumentos o ejecución
+- `2`: existen líneas no reconocidas
+- `3`: se detectaron incidentes críticos
+- `130`: operación cancelada
+
+## Procesamiento local
+
+El análisis se ejecuta localmente. Los archivos de logs no necesitan enviarse a servicios externos.

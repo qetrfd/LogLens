@@ -28,7 +28,7 @@ public sealed class MainWindowViewModel
         _summary.Product.Description;
 
     public string CurrentPhase =>
-        "Fase 5 · Agrupación de incidentes";
+        "Fase 6 · Diagnóstico local por reglas";
 
     public string RuntimeDescription =>
         $"{_summary.Runtime.OperatingSystem} · " +

@@ -84,6 +84,10 @@ internal static class Program
                 args,
                 cancellationToken),
 
+            "diagnose" => await RunDiagnoseAsync(
+                args,
+                cancellationToken),
+
             "version" => PrintVersion(),
             "--version" => PrintVersion(),
             "-v" => PrintVersion(),
@@ -107,10 +111,8 @@ internal static class Program
         int previewLimit =
             ParsePreviewLimit(args);
 
-        Guid sourceId = Guid.NewGuid();
-
         LogReadRequest request = new(
-            sourceId,
+            Guid.NewGuid(),
             filePath,
             progressIntervalLines: 250);
 
@@ -119,18 +121,10 @@ internal static class Program
 
         ConsoleLogProgress progress = new();
 
-        Console.WriteLine();
-
-        Console.WriteLine(
-            "LOGLENS · LECTOR PROGRESIVO");
-
-        Console.WriteLine(
-            new string('─', 68));
-
-        Console.WriteLine(
-            $"Archivo: {request.FilePath}");
-
-        Console.WriteLine();
+        PrintCommandHeader(
+            "LOGLENS · LECTOR PROGRESIVO",
+            request.FilePath,
+            68);
 
         LogFileInspectionResult result =
             await service.InspectAsync(
@@ -144,21 +138,16 @@ internal static class Program
 
         Console.WriteLine();
         Console.WriteLine("RESUMEN");
+        Console.WriteLine(new string('─', 68));
 
         Console.WriteLine(
-            new string('─', 68));
+            $"Tamaño:              {FormatBytes(fileInfo.Length)}");
 
         Console.WriteLine(
-            $"Tamaño:              " +
-            $"{FormatBytes(fileInfo.Length)}");
+            $"Líneas:              {result.TotalLines:N0}");
 
         Console.WriteLine(
-            $"Líneas:              " +
-            $"{result.TotalLines:N0}");
-
-        Console.WriteLine(
-            $"Líneas vacías:       " +
-            $"{result.EmptyLines:N0}");
+            $"Líneas vacías:       {result.EmptyLines:N0}");
 
         Console.WriteLine(
             $"Línea más larga:     " +
@@ -172,12 +161,9 @@ internal static class Program
         {
             Console.WriteLine();
             Console.WriteLine("VISTA PREVIA");
+            Console.WriteLine(new string('─', 68));
 
-            Console.WriteLine(
-                new string('─', 68));
-
-            foreach (
-                RawLogLine line in result.Preview)
+            foreach (RawLogLine line in result.Preview)
             {
                 Console.WriteLine(
                     $"{line.LineNumber,6} │ {line.Text}");
@@ -200,15 +186,10 @@ internal static class Program
         int previewLimit =
             ParsePreviewLimit(args);
 
-        Guid sourceId = Guid.NewGuid();
-
         LogReadRequest request = new(
-            sourceId,
+            Guid.NewGuid(),
             filePath,
             progressIntervalLines: 250);
-
-        string sourceName =
-            GetSourceName(request.FilePath);
 
         LogFileParsingService service = new(
             new StreamingLogFileReader(),
@@ -216,48 +197,34 @@ internal static class Program
 
         ConsoleLogProgress progress = new();
 
-        Console.WriteLine();
-
-        Console.WriteLine(
-            "LOGLENS · ANÁLISIS DE ESTRUCTURA");
-
-        Console.WriteLine(
-            new string('─', 68));
-
-        Console.WriteLine(
-            $"Archivo: {request.FilePath}");
-
-        Console.WriteLine();
+        PrintCommandHeader(
+            "LOGLENS · ANÁLISIS DE ESTRUCTURA",
+            request.FilePath,
+            68);
 
         LogFileParsingResult result =
             await service.ParseAsync(
                 request,
-                sourceName,
+                GetSourceName(request.FilePath),
                 previewLimit,
                 progress,
                 cancellationToken);
 
         Console.WriteLine();
         Console.WriteLine("RESUMEN");
+        Console.WriteLine(new string('─', 68));
 
         Console.WriteLine(
-            new string('─', 68));
+            $"Líneas totales:      {result.TotalLines:N0}");
 
         Console.WriteLine(
-            $"Líneas totales:      " +
-            $"{result.TotalLines:N0}");
+            $"Procesadas:          {result.ParsedLines:N0}");
 
         Console.WriteLine(
-            $"Procesadas:          " +
-            $"{result.ParsedLines:N0}");
+            $"No reconocidas:      {result.UnparsedLines:N0}");
 
         Console.WriteLine(
-            $"No reconocidas:      " +
-            $"{result.UnparsedLines:N0}");
-
-        Console.WriteLine(
-            $"Cobertura:           " +
-            $"{result.ParsedPercentage:0.##}%");
+            $"Cobertura:           {result.ParsedPercentage:0.##}%");
 
         PrintLevelCounts(result);
         PrintParserCounts(result);
@@ -277,15 +244,10 @@ internal static class Program
         GroupCommandOptions commandOptions =
             GroupCommandOptions.Parse(args);
 
-        Guid sourceId = Guid.NewGuid();
-
         LogReadRequest request = new(
-            sourceId,
+            Guid.NewGuid(),
             commandOptions.FilePath,
             progressIntervalLines: 250);
-
-        string sourceName =
-            GetSourceName(request.FilePath);
 
         LogGroupingOptions groupingOptions = new(
             commandOptions.SampleLimit,
@@ -297,16 +259,10 @@ internal static class Program
 
         ConsoleLogProgress progress = new();
 
-        Console.WriteLine();
-
-        Console.WriteLine(
-            "LOGLENS · AGRUPACIÓN DE INCIDENTES");
-
-        Console.WriteLine(
-            new string('─', 78));
-
-        Console.WriteLine(
-            $"Archivo: {request.FilePath}");
+        PrintCommandHeader(
+            "LOGLENS · AGRUPACIÓN DE INCIDENTES",
+            request.FilePath,
+            78);
 
         Console.WriteLine(
             $"Muestras por grupo: " +
@@ -321,7 +277,7 @@ internal static class Program
         LogFileGroupingResult result =
             await service.GroupAsync(
                 request,
-                sourceName,
+                GetSourceName(request.FilePath),
                 groupingOptions,
                 progress,
                 cancellationToken);
@@ -337,14 +293,90 @@ internal static class Program
             : 0;
     }
 
+    private static async Task<int> RunDiagnoseAsync(
+        string[] args,
+        CancellationToken cancellationToken)
+    {
+        DiagnoseCommandOptions commandOptions =
+            DiagnoseCommandOptions.Parse(args);
+
+        LogReadRequest request = new(
+            Guid.NewGuid(),
+            commandOptions.FilePath,
+            progressIntervalLines: 250);
+
+        LogGroupingOptions groupingOptions = new(
+            commandOptions.SampleLimit,
+            commandOptions.IncludeUnknownLevels);
+
+        LogFileDiagnosticService service =
+            DefaultLogAnalysisFactory
+                .CreateFileDiagnosticService();
+
+        ConsoleLogProgress progress = new();
+
+        PrintCommandHeader(
+            "LOGLENS · DIAGNÓSTICO DE INCIDENTES",
+            request.FilePath,
+            84);
+
+        Console.WriteLine(
+            $"Muestras por grupo:   " +
+            $"{groupingOptions.SampleLimit}");
+
+        Console.WriteLine(
+            $"Incluir desconocidos: " +
+            $"{groupingOptions.IncludeUnknownLevels}");
+
+        Console.WriteLine(
+            $"Prioridad mínima:     " +
+            $"{commandOptions.MinimumPriority}");
+
+        Console.WriteLine();
+
+        LogFileDiagnosticResult result =
+            await service.DiagnoseAsync(
+                request,
+                GetSourceName(request.FilePath),
+                groupingOptions,
+                progress,
+                cancellationToken);
+
+        ConsoleIncidentDiagnosticRenderer.Render(
+            result,
+            commandOptions.Top,
+            commandOptions.MinimumPriority);
+
+        Console.WriteLine();
+
+        if (result.HasCriticalIncidents)
+        {
+            return 3;
+        }
+
+        return result.UnparsedLines > 0
+            ? 2
+            : 0;
+    }
+
+    private static void PrintCommandHeader(
+        string title,
+        string filePath,
+        int width)
+    {
+        Console.WriteLine();
+        Console.WriteLine(title);
+        Console.WriteLine(new string('─', width));
+        Console.WriteLine($"Archivo: {filePath}");
+        Console.WriteLine();
+    }
+
     private static void PrintLevelCounts(
         LogFileParsingResult result)
     {
         Console.WriteLine();
         Console.WriteLine("NIVELES");
-
-        Console.WriteLine(
-            new string('─', 68));
+        Console.WriteLine(new string('─', 68));
 
         if (result.LevelCounts.Count == 0)
         {
@@ -361,8 +393,7 @@ internal static class Program
                     item => item.Key))
         {
             Console.WriteLine(
-                $"{item.Key,-18} " +
-                $"{item.Value,10:N0}");
+                $"{item.Key,-18} {item.Value,10:N0}");
         }
     }
 
@@ -371,9 +402,7 @@ internal static class Program
     {
         Console.WriteLine();
         Console.WriteLine("PARSERS");
-
-        Console.WriteLine(
-            new string('─', 68));
+        Console.WriteLine(new string('─', 68));
 
         if (result.ParserCounts.Count == 0)
         {
@@ -393,8 +422,7 @@ internal static class Program
                     StringComparer.Ordinal))
         {
             Console.WriteLine(
-                $"{item.Key,-30} " +
-                $"{item.Value,10:N0}");
+                $"{item.Key,-30} {item.Value,10:N0}");
         }
     }
 
@@ -407,15 +435,10 @@ internal static class Program
         }
 
         Console.WriteLine();
+        Console.WriteLine("VISTA PREVIA PROCESADA");
+        Console.WriteLine(new string('─', 68));
 
-        Console.WriteLine(
-            "VISTA PREVIA PROCESADA");
-
-        Console.WriteLine(
-            new string('─', 68));
-
-        foreach (
-            ParsedLogLine line in result.Preview)
+        foreach (ParsedLogLine line in result.Preview)
         {
             string timestamp =
                 line.Timestamp?.ToString(
@@ -523,33 +546,24 @@ internal static class Program
 
         Console.WriteLine();
         Console.WriteLine("LOGLENS");
+        Console.WriteLine(new string('─', 68));
 
         Console.WriteLine(
-            new string('─', 68));
+            $"Versión:       {summary.Product.Version}");
 
         Console.WriteLine(
-            $"Versión:       " +
-            $"{summary.Product.Version}");
+            $"Descripción:   {summary.Product.Description}");
 
         Console.WriteLine(
-            $"Descripción:   " +
-            $"{summary.Product.Description}");
+            $"Sistema:       {summary.Runtime.OperatingSystem}");
 
         Console.WriteLine(
-            $"Sistema:       " +
-            $"{summary.Runtime.OperatingSystem}");
+            $"Arquitectura:  {summary.Runtime.Architecture}");
 
         Console.WriteLine(
-            $"Arquitectura:  " +
-            $"{summary.Runtime.Architecture}");
+            $"Runtime:       {summary.Runtime.Framework}");
 
-        Console.WriteLine(
-            $"Runtime:       " +
-            $"{summary.Runtime.Framework}");
-
-        Console.WriteLine(
-            new string('─', 68));
-
+        Console.WriteLine(new string('─', 68));
         Console.WriteLine();
     }
 
@@ -559,34 +573,41 @@ internal static class Program
         Console.WriteLine();
 
         Console.WriteLine(
-            "  loglens read <archivo>");
-
-        Console.WriteLine(
             "  loglens read <archivo> --preview 20");
-
-        Console.WriteLine(
-            "  loglens parse <archivo>");
 
         Console.WriteLine(
             "  loglens parse <archivo> --preview 20");
 
         Console.WriteLine(
-            "  loglens group <archivo>");
+            "  loglens group <archivo> --samples 3 --top 10");
 
         Console.WriteLine(
-            "  loglens group <archivo> --samples 5");
+            "  loglens diagnose <archivo>");
 
         Console.WriteLine(
-            "  loglens group <archivo> --top 10");
+            "  loglens diagnose <archivo> --samples 3");
 
         Console.WriteLine(
-            "  loglens group <archivo> --exclude-unknown");
+            "  loglens diagnose <archivo> --top 10");
+
+        Console.WriteLine(
+            "  loglens diagnose <archivo> --exclude-unknown");
+
+        Console.WriteLine(
+            "  loglens diagnose <archivo> --min-priority high");
 
         Console.WriteLine(
             "  loglens version");
 
         Console.WriteLine(
             "  loglens help");
+
+        Console.WriteLine();
+        Console.WriteLine("PRIORIDADES");
+        Console.WriteLine();
+
+        Console.WriteLine(
+            "  none, low, medium, high, critical");
 
         Console.WriteLine();
         Console.WriteLine("FORMATOS");

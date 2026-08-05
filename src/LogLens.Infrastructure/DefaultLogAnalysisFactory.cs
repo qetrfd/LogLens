@@ -12,4 +12,13 @@ public static class DefaultLogAnalysisFactory
             DefaultLogParserFactory.Create(),
             new DefaultLogFingerprintGenerator());
     }
+
+    public static LogFileDiagnosticService
+        CreateFileDiagnosticService()
+    {
+        return new LogFileDiagnosticService(
+            CreateFileGroupingService(),
+            DefaultIncidentDiagnosticFactory
+                .CreateService());
+    }
 }
